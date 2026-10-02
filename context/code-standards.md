@@ -19,20 +19,75 @@
 
 ## Import Organization
 
-At the top of each file, use clear section comments:
+Always organize imports with proper comment headers and spacing:
 
-```ts
-/** External dependencies */
-import React from "react";
+```typescript
+// ** import types
+import type { TypeName, AnotherType } from "@/types/module";
 
-/** Internal dependencies */
-import { Piece } from "@chess-game/chess";
+// ** import utils
+import { utilFunction } from "wxt/utils/module";
 
-/** Local modules */
-import { Board } from "./types";
+// ** import lib
+import { LibClass } from "@/lib/module";
+import { AnotherClass } from "./localModule";
+
+// ** import apis
+import { apiFunction } from "@/api/module";
+
+// ** import constants
+import { CONSTANT_VALUE } from "./constants";
+
+// ** import styles
+import "@/entrypoints/style.css";
 ```
 
-Keep this order consistent. Add blank lines between sections.
+### Rules
+
+1. Always add 1 line space between different import sections
+2. Use exact comment format: `// ** import [category]`
+3. Group related imports under the same comment section
+4. Order from abstract to concrete: types → utils → lib → apis → constants → styles
+5. No additional descriptive text in comments - just the category name
+
+### Categories
+
+- `// ** import types` - TypeScript type imports only
+- `// ** import utils` - Utility functions and helpers
+- `// ** import lib` - Library/class imports from local modules
+- `// ** import apis` - API-related imports
+- `// ** import constants` - Constant/configuration imports
+- `// ** import styles` - CSS/style imports
+
+### Examples
+
+✅ Good:
+
+```typescript
+// ** import types
+import type { FormField } from "@/types/extension";
+
+// ** import lib
+import { ElementUtils } from "./elementUtils";
+import { SoundManager } from "@/lib/utils/soundManager";
+```
+
+❌ Bad:
+
+```typescript
+import type { FormField } from "@/types/extension";
+import { ElementUtils } from "./elementUtils";
+import { SoundManager } from "@/lib/utils/soundManager";
+```
+
+❌ Bad:
+
+```typescript
+// ** import types
+import type { FormField } from "@/types/extension";
+// ** import lib utilities
+import { ElementUtils } from "./elementUtils";
+```
 
 ## File Organization
 
@@ -40,6 +95,7 @@ Keep this order consistent. Add blank lines between sections.
 - `src/index.ts` — Public exports only
 - Subdirectories for grouping related code by feature
 - One concept per file when possible
+- Group API functions by feature/domain in dedicated folders
 
 ## Naming Conventions
 
@@ -57,6 +113,51 @@ Keep this order consistent. Add blank lines between sections.
 - Props interface defined above component
 - Destructure props in function signature
 - Colocate component styles when practical
+- API functions should be separate from React components
+- Use centralized axios configuration for API calls
+
+## Code Splitting Rules
+
+### API Code Splitting
+
+When API files become large or contain multiple endpoints, follow these splitting rules:
+
+#### 1. Single Responsibility Principle
+
+- One API endpoint per file
+- One schema per file
+- Each file should handle exactly one operation
+
+#### 2. Domain-Based Folder Structure
+
+```
+src/api/
+├── config/
+│   └── axios.ts              # Centralized axios configuration
+├── features/
+│   ├── feature-name/
+│   │   ├── get-feature.ts    # GET endpoint
+│   │   ├── create-feature.ts # POST endpoint
+│   │   └── index.ts          # Export all
+```
+
+#### 3. File Naming Conventions
+
+- Use kebab-case for file names
+- Use descriptive action-resource naming:
+  - `get-products.ts` - List products
+  - `get-product-details.ts` - Single product
+  - `create-product.ts` - Create product
+  - `update-product-status.ts` - Update specific field
+
+#### 4. Index File Pattern
+
+Each domain folder must have an `index.ts` that exports all functions:
+
+```typescript
+export { getProducts } from "./get-products";
+export { createProduct } from "./create-product";
+```
 
 ## Package Rules
 
@@ -67,7 +168,7 @@ Keep this order consistent. Add blank lines between sections.
 
 ## Turborepo
 
-- Tasks: `build`, `dev`, `lint`, `typecheck`
+- Tasks: `build`, `dev`, `lint`, `type-check`
 - Apps depend on packages via `dependsOn: ["^build"]`
 - Shared configs in `packages/config/`
 - Never reference apps from packages (dependency direction)
@@ -78,3 +179,13 @@ Keep this order consistent. Add blank lines between sections.
 - `bun run typecheck` must pass before pushing
 - Run relevant checks after each feature implementation
 - Do not mark work complete until checks pass
+
+## Quality Checklist
+
+Before implementing new API functionality:
+
+- [ ] API function is in appropriate domain folder
+- [ ] Uses centralized axios configuration
+- [ ] Follows established naming conventions
+- [ ] Includes proper TypeScript types
+- [ ] Component remains focused on UI logic only
