@@ -6,8 +6,8 @@
 - [x] Web app scaffold (Vite + React placeholder only)
 - [x] Package scaffolds
 - [x] Agent and architecture documentation
-- [ ] Architecture review approval
-- [ ] Chess implementation (not started)
+- [x] Architecture review approval
+- [ ] Chess implementation
 
 ## Current Goal
 
@@ -31,18 +31,18 @@ Wait for architecture review. Do not implement the chessboard or game rules unti
 
 ## In Progress
 
-- [ ] Architecture review approval
+- [ ] Piece movement
 
-## Not started
+## Completed features
 
-- Chessboard and all game rules. Specs exist as drafts only.
+- [x] Chessboard rendering and starting position
 
 ## Next Up
 
 After setup is complete, implement chess features in order:
 
-1. Chessboard rendering
-2. Piece display
+1. Chessboard rendering — done
+2. Piece display — done with board
 3. Square selection
 4. Legal move calculation
 5. Turn handling

@@ -1,3 +1,16 @@
+// ** import lib
+import { createInitialGameState } from "@chess-game/chess";
+import { ChessBoard } from "@chess-game/ui";
+
+// ** import styles
+import "./styles.css";
+
 export default function App() {
-  return <div>Chess Game</div>;
+  const game = createInitialGameState();
+
+  return (
+    <main className="app">
+      <ChessBoard board={game.board} />
+    </main>
+  );
 }

@@ -10,6 +10,8 @@
     "lint": "eslint src/"
   },
   "dependencies": {
+    "@chess-game/chess": "workspace:*",
+    "@chess-game/ui": "workspace:*",
     "react": "^18.3.0",
     "react-dom": "^18.3.0"
   },

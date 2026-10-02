@@ -10,6 +10,7 @@
   "scripts": {
     "build": "tsc --build",
     "type-check": "tsc --noEmit",
+    "test": "bun test",
     "lint": "eslint src/"
   },
   "devDependencies": {
