@@ -1,0 +1,24 @@
+{
+  "name": "chess-game",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "turbo build",
+    "dev": "turbo dev",
+    "lint": "turbo lint",
+    "typecheck": "turbo type-check --filter=//...",
+    "check": "turbo run build lint type-check"
+  },
+  "devDependencies": {
+    "turbo": "^2.0.0",
+    "typescript": "^5.4.0"
+  },
+  "packageManager": "bun@1.1.0",
+  "engines": {
+    "bun": "^1.1.0",
+    "node": ">=18"
+  }
+}

@@ -2,52 +2,79 @@
 
 ## General
 
-- [Principle — e.g. Keep modules small and single-purpose]
-- [Principle — e.g. Fix root causes, do not layer workarounds]
-- [Principle — e.g. Do not mix unrelated concerns in one
-  component or route]
+- Keep modules small and single-purpose
+- Fix root causes, do not layer workarounds
+- Do not mix unrelated concerns in one component or function
+- Avoid unnecessary abstractions until they are actually needed
+- Keep business/game logic separate from UI code
 
 ## TypeScript
 
-- [Rule — e.g. Strict mode is required throughout the project]
-- [Rule — e.g. Avoid any — use explicit interfaces or narrowly
-  scoped types]
-- [Rule — e.g. Validate unknown external input at system
-  boundaries before trusting it]
+- Strict mode is required throughout the project
+- Avoid `any` — use explicit interfaces or narrowly scoped types
+- Validate unknown external input at system boundaries
+- Use `unknown` for values of unknown type, then narrow appropriately
+- Prefer `type` over `interface` for simple type definitions
+- Use `interface` for object shapes that may be extended
 
-## [Framework — e.g. Next.js]
+## Import Organization
 
-- [Convention — e.g. Default to server components]
-- [Convention — e.g. Add use client only when browser
-  interactivity requires it]
-- [Convention — e.g. Keep route handlers focused on a
-  single responsibility]
+At the top of each file, use clear section comments:
 
-## Styling
+```ts
+/** External dependencies */
+import React from "react";
 
-- [Rule — e.g. Use CSS custom property tokens — no
-  hardcoded hex values]
-- [Rule — e.g. Follow the border radius scale defined
-  in ui-context.md]
+/** Internal dependencies */
+import { Piece } from "@chess-game/chess";
 
-## API Routes
+/** Local modules */
+import { Board } from "./types";
+```
 
-- [Rule — e.g. Validate and parse request input before
-  any logic runs]
-- [Rule — e.g. Enforce auth and ownership before any mutation]
-- [Rule — e.g. Return consistent, predictable response shapes]
-
-## Data and Storage
-
-- [Rule — e.g. Metadata belongs in the database]
-- [Rule — e.g. Large generated content belongs in file
-  or blob storage]
-- [Rule — e.g. Do not store large content directly in
-  the database]
+Keep this order consistent. Add blank lines between sections.
 
 ## File Organization
 
-- `[folder]/` — [What belongs here]
-- `[folder]/` — [What belongs here]
-- `[folder]/` — [What belongs here]
-- `[folder]/` — [What belongs here]s
+- `src/` — Source code
+- `src/index.ts` — Public exports only
+- Subdirectories for grouping related code by feature
+- One concept per file when possible
+
+## Naming Conventions
+
+| Thing         | Convention         | Example                    |
+| ------------- | ------------------ | -------------------------- |
+| Files         | kebab-case         | `game-state.ts`            |
+| Types/Classes | PascalCase         | `GameState`, `ChessBoard`  |
+| Functions     | camelCase          | `calculateLegalMoves`      |
+| Constants     | UPPER_SNAKE_CASE   | `MAX_BOARD_SIZE`           |
+| Interfaces    | PascalCase         | `Move`, `Position`         |
+
+## Component Rules
+
+- Functional components with hooks (no class components)
+- Props interface defined above component
+- Destructure props in function signature
+- Colocate component styles when practical
+
+## Package Rules
+
+1. `packages/chess` — No React imports, no UI code, pure game logic
+2. `packages/ui` — React components that use chess types
+3. `apps/web` — Main application, uses both packages
+4. Never mix chess rules into UI components
+
+## Turborepo
+
+- Tasks: `build`, `dev`, `lint`, `typecheck`
+- Apps depend on packages via `dependsOn: ["^build"]`
+- Shared configs in `packages/config/`
+- Never reference apps from packages (dependency direction)
+
+## Build and Verification
+
+- `bun run build` must pass before pushing
+- `bun run typecheck` must pass before pushing
+- Run relevant checks after each feature implementation
+- Do not mark work complete until checks pass

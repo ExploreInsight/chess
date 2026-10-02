@@ -2,58 +2,96 @@
 
 ## Theme
 
-[Describe the overall visual language — e.g. Dark only.
-No light mode. The design language is a dark technical
-workspace — near-black backgrounds, layered surfaces,
-and vivid accent colors for interactive elements.]
+Classic physical chessboard aesthetic. Traditional and clean — not a gaming dashboard. Feels like sitting at a real chess table with a quality wooden set.
 
-## Colors
+## Color Palette
 
-[Define your color tokens as CSS custom properties.
-All components must use these tokens — no hardcoded
-hex values.]
-
-| Role            | CSS Variable       | Value    |
-| --------------- | ------------------ | -------- |
-| Page background | `--bg-base`        | `#[hex]` |
-| Surface         | `--bg-surface`     | `#[hex]` |
-| Primary text    | `--text-primary`   | `#[hex]` |
-| Muted text      | `--text-muted`     | `#[hex]` |
-| Primary accent  | `--accent-primary` | `#[hex]` |
-| Border          | `--border-default` | `#[hex]` |
-| Error           | `--state-error`    | `#[hex]` |
-| Success         | `--state-success`  | `#[hex]` |
+| Role              | CSS Variable           | Value     | Description                    |
+| ----------------- | --------------------- | --------- | ------------------------------ |
+| Light square      | `--square-light`      | `#F0D9B5` | Cream/ivory wood               |
+| Dark square       | `--square-dark`       | `#B58863` | Brown walnut wood              |
+| Selected square   | `--square-selected`   | `#829769` | Muted green highlight          |
+| Valid move dot    | `--move-indicator`    | `#696969` | Gray circle for valid moves    |
+| Check highlight   | `--square-check`      | `#E74C3C` | Red glow for king in check     |
+| Page background   | `--bg-page`           | `#312E2B` | Dark wood table background     |
+| Surface           | `--bg-surface`        | `#272522` | Slightly darker panel           |
+| Text primary      | `--text-primary`      | `#FFFFFF` | White text                      |
+| Text muted        | `--text-muted`        | `#9B9B9B` | Gray secondary text             |
 
 ## Typography
 
-| Role      | Font              | Variable      |
-| --------- | ----------------- | ------------- |
-| UI text   | [e.g. Geist Sans] | `--font-sans` |
-| Code/mono | [e.g. Geist Mono] | `--font-mono` |
+| Role      | Font                   | Variable        |
+| --------- | ---------------------- | --------------- |
+| UI text   | Inter, system-ui, sans | `--font-sans`   |
+| Piece     | Chess symbols/sets     | Unicode pieces  |
 
-## Border Radius
+## Chess Pieces
 
-| Context           | Class            |
-| ----------------- | ---------------- |
-| Inline / small UI | `rounded-[size]` |
-| Cards / panels    | `rounded-[size]` |
-| Modals / overlays | `rounded-[size]` |
+Use Unicode chess symbols for initial implementation:
 
-## Component Library
-
-[e.g. shadcn/ui on top of Tailwind. Components live
-in components/ui/. Use the CLI to add new components
-rather than writing from scratch.]
+| Piece | White | Black |
+| ----- | ----- | ----- |
+| King   | ♔     | ♚     |
+| Queen  | ♕     | ♛     |
+| Rook   | ♖     | ♜     |
+| Bishop | ♗     | ♝     |
+| Knight | ♘     | ♞     |
+| Pawn   | ♙     | ♟     |
 
 ## Layout Patterns
 
-- [Pattern — e.g. Editor: full-viewport split with
-  left sidebar, center canvas, right sidebar]
-- [Pattern — e.g. Sidebars: fixed width with border separator]
-- [Pattern — e.g. Modals: centered overlay with backdrop blur]
-- [Pattern — e.g. Navbar: top bar with bottom border]
+- Centered chessboard on page
+- Board is square, responsive sizing (min 320px, max 560px)
+- Subtle shadow under board for depth
+- Game status text below board
+- Reset button below status
+- Dark wood-grain background behind board
 
-## Icons
+## Design Rules
 
-[e.g. Lucide React. Stroke-based icons only. Sizes:
-h-4 w-4 for inline, h-5 w-5 for buttons.]
+**Do:**
+
+- Clean, traditional chessboard look
+- Subtle shadows and depth
+- Clear piece contrast
+- Simple piece symbols
+- Minimal UI chrome
+
+**Don't:**
+
+- Futuristic or neon styling
+- Excessive gradients
+- Complex animations
+- Gaming dashboard aesthetics
+- Colorful or cartoonish pieces
+
+## Component Inventory
+
+### Chessboard
+
+- 8x8 grid of alternating light/dark squares
+- Subtle border and shadow
+- Responsive but maintains square aspect ratio
+
+### Square
+
+- Light or dark based on position
+- Highlight states: default, selected, valid-move, check
+- Cursor pointer when contains selectable piece
+
+### Piece
+
+- Unicode symbol centered in square
+- Appropriate font size for square
+- Draggable (future enhancement)
+
+### Game Status
+
+- Shows current turn (White/Black to move)
+- Shows check, checkmate, or draw state
+- Clean text below board
+
+### Reset Button
+
+- Simple button below board
+- Resets game to initial position
