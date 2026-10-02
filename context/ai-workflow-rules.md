@@ -2,117 +2,97 @@
 
 ## Approach
 
-Build this project incrementally using a spec-driven workflow. Context files define what to build, how to build it, and the current state of progress. Always implement against these specs — do not infer or invent behavior from scratch.
+Build incrementally. Specs define behavior. Do not invent product behavior.
 
-## Feature Workflow
+Smallest correct architecture for the next feature. No speculative backend, auth, database, multiplayer, or mobile app.
 
-```
-Idea
-  ↓
+## Required Workflow
+
+```text
+Requirement
+    ↓
 Feature specification (context/specs/)
-  ↓
-Review
-  ↓
+    ↓
+Review / clarification
+    ↓
 Implementation plan
-  ↓
+    ↓
 Implementation
-  ↓
-Verification (build + typecheck)
-  ↓
+    ↓
+Testing / verification
+    ↓
 Progress update
 ```
 
-## Scoping Rules
+No meaningful feature implementation starts without a specification.
 
-- Work on one feature unit at a time
-- Prefer small, verifiable increments over large speculative changes
-- Do not combine unrelated system boundaries in a single implementation step
-- If a change cannot be verified end to end quickly, the scope is too broad
+If `context/specs/<feature>.md` does not exist, stop and create it. Do not implement first.
 
-## Feature Specifications
-
-Every feature must have its own specification file in `context/specs/`.
-
-Before implementing any feature:
-
-1. Check whether a specification exists in `context/specs/`
-2. If it does not exist, create one
-3. Document: goal, user experience, functional requirements, technical requirements, edge cases, acceptance criteria, and dependencies
-4. Only then begin implementation
+If a requirement is ambiguous, put it under `Open Questions` and ask. Do not guess chess rules or product behavior.
 
 ## Specification Template
 
 ```md
-# [Feature Name]
+# Feature Name
 
 ## Goal
 
-[What this feature accomplishes]
-
 ## User Experience
-
-[How the user interacts with this feature]
 
 ## Functional Requirements
 
-- [Requirement 1]
-- [Requirement 2]
-
 ## Technical Requirements
-
-- [Technical requirement 1]
 
 ## Edge Cases
 
-- [Edge case 1]
-
 ## Acceptance Criteria
-
-1. [Criterion 1]
-2. [Criterion 2]
 
 ## Dependencies
 
-- [Any prerequisite features]
+## Open Questions
 ```
 
-## Handling Missing Requirements
+## Scoping
 
-- Do not invent product behavior not defined in the context files
-- If a requirement is ambiguous, resolve it in the relevant context file before implementing
-- If a requirement is missing, add it as an open question in `progress-tracker.md` before continuing
+- One feature unit at a time.
+- Do not mix UI, domain rules, and future backend in one step.
+- If it cannot be verified end to end, the scope is too large.
 
-## Protected Files
+## Before Coding
 
-Do not modify unless explicitly instructed:
+1. Read `context/project-overview.md`, `architecture.md`, `ui-context.md`, `code-standards.md`, this file, and `progress-tracker.md`.
+2. Read the relevant spec in `context/specs/`.
+3. State the implementation approach.
+4. Respect package boundaries in `context/architecture.md`.
 
-- `packages/chess/src/index.ts` — Core logic without existing tests
-- Any third-party library internals
+## During Coding
 
-## Keeping Docs in Sync
+- Chess rules go in `packages/chess`.
+- UI does not validate chess rules.
+- Follow import headers in `context/code-standards.md`.
+- Use a design pattern only when the spec or real duplication justifies it.
+- Do not add dependencies for hypothetical features.
 
-Update the relevant context file whenever implementation changes:
+## After Coding
 
-- System architecture or boundaries → `context/architecture.md`
-- Visual design → `context/ui-context.md`
-- Code conventions → `context/code-standards.md`
-- Feature scope → `context/project-overview.md` and relevant spec
+1. Run `bun run typecheck` and `bun run build`.
+2. Add or run domain tests when the change is chess logic.
+3. Update the spec if behavior changed.
+4. Update `context/progress-tracker.md` only for work that is actually verified.
+5. Update architecture docs if boundaries changed.
+6. Summarize what changed.
 
-## Before Moving to Next Feature
+## Docs That Must Stay in Sync
 
-1. The current unit works end to end within its defined scope
-2. No invariant defined in `context/architecture.md` was violated
-3. `progress-tracker.md` reflects the completed work
-4. `bun run build` passes
-5. `bun run typecheck` passes
+| Change                         | File                         |
+| ------------------------------ | ---------------------------- |
+| Package boundaries             | `context/architecture.md`    |
+| Engineering conventions        | `context/code-standards.md`  |
+| Visual rules                   | `context/ui-context.md`      |
+| Product scope                  | `context/project-overview.md`|
+| Feature requirements           | `context/specs/*`            |
+| Completed, verified work       | `context/progress-tracker.md`|
 
-## Implementation Guidelines
+## Out of Scope Until Specified
 
-When implementing a feature, first explain the intended implementation approach, then make the changes.
-
-After implementation:
-1. Run relevant checks/tests
-2. Verify the feature works
-3. Update the feature specification if necessary
-4. Update `progress-tracker.md`
-5. Clearly summarize what changed
+Authentication, backend, database, online multiplayer, friends, matchmaking, ratings, history, and mobile implementation.

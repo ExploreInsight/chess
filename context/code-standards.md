@@ -2,190 +2,168 @@
 
 ## General
 
-- Keep modules small and single-purpose
-- Fix root causes, do not layer workarounds
-- Do not mix unrelated concerns in one component or function
-- Avoid unnecessary abstractions until they are actually needed
-- Keep business/game logic separate from UI code
+- TypeScript-first. Strict typing.
+- Small, focused modules. Clear names.
+- One responsibility per file, component, and function.
+- No unnecessary abstractions.
+- Prefer composition over inheritance.
+- Game logic stays out of UI.
+- Reusable domain logic belongs in `packages/chess`.
+- Do not duplicate chess logic between web and future mobile.
+- Keep dependencies minimal.
+- Follow existing conventions before adding new ones.
+- Fix root causes. Do not layer workarounds.
 
 ## TypeScript
 
-- Strict mode is required throughout the project
-- Avoid `any` — use explicit interfaces or narrowly scoped types
-- Validate unknown external input at system boundaries
-- Use `unknown` for values of unknown type, then narrow appropriately
-- Prefer `type` over `interface` for simple type definitions
-- Use `interface` for object shapes that may be extended
+- Avoid `any`.
+- Prefer explicit types.
+- Use `unknown` for unknown external values, then narrow before use.
+- Avoid unnecessary assertions.
+- Prefer discriminated unions for domain states when they make illegal states unrepresentable.
+- Domain types live in `packages/chess`. Do not copy them into apps.
+- Prefer `import type` for type-only imports.
+- `interface` for object shapes that may be extended. `type` for unions and simple aliases.
 
 ## Import Organization
 
-Always organize imports with proper comment headers and spacing:
+Every source file uses this order. Skip a section if it has no imports. One blank line between sections. No empty sections. No custom comment wording.
 
-```typescript
+```ts
 // ** import types
-import type { TypeName, AnotherType } from "@/types/module";
+import type { Position } from "./types";
 
 // ** import utils
-import { utilFunction } from "wxt/utils/module";
+import { calculateSomething } from "./utils";
 
 // ** import lib
-import { LibClass } from "@/lib/module";
-import { AnotherClass } from "./localModule";
+import { ChessBoard } from "@/components/ChessBoard";
 
 // ** import apis
-import { apiFunction } from "@/api/module";
+import { getGame } from "@/api/game";
 
 // ** import constants
-import { CONSTANT_VALUE } from "./constants";
+import { BOARD_SIZE } from "./constants";
 
 // ** import styles
-import "@/entrypoints/style.css";
+import "./styles.css";
 ```
 
-### Rules
+Rules:
 
-1. Always add 1 line space between different import sections
-2. Use exact comment format: `// ** import [category]`
-3. Group related imports under the same comment section
-4. Order from abstract to concrete: types → utils → lib → apis → constants → styles
-5. No additional descriptive text in comments - just the category name
+- Exact format: `// ** import [category]`
+- Categories, in order: `types`, `utils`, `lib`, `apis`, `constants`, `styles`
+- Do not write variations such as `// ** import lib utilities`
+- Do not add extra descriptive text
+- Group related imports under the same header
+- Type-only imports use `import type` and belong under `types`
+- Avoid circular imports
+- There is no API layer yet. Do not add `apis` imports until a spec requires them.
 
-### Categories
+## Naming
 
-- `// ** import types` - TypeScript type imports only
-- `// ** import utils` - Utility functions and helpers
-- `// ** import lib` - Library/class imports from local modules
-- `// ** import apis` - API-related imports
-- `// ** import constants` - Constant/configuration imports
-- `// ** import styles` - CSS/style imports
+| Thing          | Convention        | Example               |
+| -------------- | ----------------- | --------------------- |
+| Files          | kebab-case        | `move-validator.ts`   |
+| Types          | PascalCase        | `GameState`           |
+| Functions      | camelCase         | `getLegalMoves`       |
+| Constants      | UPPER_SNAKE_CASE  | `BOARD_SIZE`          |
 
-### Examples
+Prefer domain names. Do not create `utils.ts` or `helpers.ts` as a dumping ground.
 
-✅ Good:
+## File Size
 
-```typescript
-// ** import types
-import type { FormField } from "@/types/extension";
+Guidelines, not quotas:
 
-// ** import lib
-import { ElementUtils } from "./elementUtils";
-import { SoundManager } from "@/lib/utils/soundManager";
+- under 250 lines: normal
+- 250–350: review responsibility
+- over 350: split when practical
+
+Split when responsibility changes, concepts are independent, or logic can be tested alone. Do not split into meaningless fragments.
+
+## React
+
+- Functional components only.
+- One clear responsibility.
+- Props type above the component. Destructure in the signature.
+- No chess rules inside presentation components.
+- No giant board component that also validates moves, detects mate, and owns networking.
+- Prefer composition.
+- Business and game logic stay outside presentation components.
+
+Bad:
+
+```text
+ChessBoard
+ ├── movement rules
+ ├── check detection
+ ├── networking
+ └── rendering
 ```
 
-❌ Bad:
+Preferred:
 
-```typescript
-import type { FormField } from "@/types/extension";
-import { ElementUtils } from "./elementUtils";
-import { SoundManager } from "@/lib/utils/soundManager";
+```text
+ChessBoard UI → app wiring → packages/chess
 ```
 
-❌ Bad:
+## Abstractions
 
-```typescript
-// ** import types
-import type { FormField } from "@/types/extension";
-// ** import lib utilities
-import { ElementUtils } from "./elementUtils";
-```
+Do not abstract for hypothetical future requirements.
 
-## File Organization
+Before creating one, all of these should be true:
 
-- `src/` — Source code
-- `src/index.ts` — Public exports only
-- Subdirectories for grouping related code by feature
-- One concept per file when possible
-- Group API functions by feature/domain in dedicated folders
+1. There is actual duplication, or more than one meaningful consumer.
+2. It reduces coupling.
+3. It improves readability.
+4. It is needed now.
 
-## Naming Conventions
+Avoid premature base classes, managers, services, factories, generic wrappers, and deep inheritance.
 
-| Thing         | Convention         | Example                    |
-| ------------- | ------------------ | -------------------------- |
-| Files         | kebab-case         | `game-state.ts`            |
-| Types/Classes | PascalCase         | `GameState`, `ChessBoard`  |
-| Functions     | camelCase          | `calculateLegalMoves`      |
-| Constants     | UPPER_SNAKE_CASE   | `MAX_BOARD_SIZE`           |
-| Interfaces    | PascalCase         | `Move`, `Position`         |
+Patterns, only when justified:
 
-## Component Rules
+- Factory: meaningful branching or repeated construction. A future `createChessPiece(type, color)` is acceptable. A factory around a plain object is not.
+- Strategy: multiple interchangeable algorithms that exist now, or are required by the current spec.
+- Adapter: translating an external interface into an internal one.
+- Repository: not until persistence exists.
 
-- Functional components with hooks (no class components)
-- Props interface defined above component
-- Destructure props in function signature
-- Colocate component styles when practical
-- API functions should be separate from React components
-- Use centralized axios configuration for API calls
+## Packages
 
-## Code Splitting Rules
+1. `packages/chess` — no React, no DOM, no app imports.
+2. `packages/ui` — presentation only. May use chess types. Must not implement rules.
+3. `apps/web` — composition and browser behavior.
+4. `apps/mobile` — placeholder only.
+5. Packages never import from apps.
 
-### API Code Splitting
+## Testing
 
-When API files become large or contain multiple endpoints, follow these splitting rules:
+Chess correctness is tested in the domain package, not only through the UI.
 
-#### 1. Single Responsibility Principle
+Prioritize, once those features are specified and implemented:
 
-- One API endpoint per file
-- One schema per file
-- Each file should handle exactly one operation
+- Initial board
+- Piece movement
+- Legal moves
+- Captures
+- Turns
+- Check
+- Checkmate
+- Stalemate
+- Draw conditions
+- Special chess rules
 
-#### 2. Domain-Based Folder Structure
+Do not add a test runner until the first domain feature is approved. Do not mark rules complete without domain tests.
 
-```
-src/api/
-├── config/
-│   └── axios.ts              # Centralized axios configuration
-├── features/
-│   ├── feature-name/
-│   │   ├── get-feature.ts    # GET endpoint
-│   │   ├── create-feature.ts # POST endpoint
-│   │   └── index.ts          # Export all
-```
+## Verification
 
-#### 3. File Naming Conventions
+- `bun run typecheck` and `bun run build` must pass before a feature is called done.
+- Do not mark incomplete work complete in `context/progress-tracker.md`.
 
-- Use kebab-case for file names
-- Use descriptive action-resource naming:
-  - `get-products.ts` - List products
-  - `get-product-details.ts` - Single product
-  - `create-product.ts` - Create product
-  - `update-product-status.ts` - Update specific field
+## Documentation Sync
 
-#### 4. Index File Pattern
-
-Each domain folder must have an `index.ts` that exports all functions:
-
-```typescript
-export { getProducts } from "./get-products";
-export { createProduct } from "./create-product";
-```
-
-## Package Rules
-
-1. `packages/chess` — No React imports, no UI code, pure game logic
-2. `packages/ui` — React components that use chess types
-3. `apps/web` — Main application, uses both packages
-4. Never mix chess rules into UI components
-
-## Turborepo
-
-- Tasks: `build`, `dev`, `lint`, `type-check`
-- Apps depend on packages via `dependsOn: ["^build"]`
-- Shared configs in `packages/config/`
-- Never reference apps from packages (dependency direction)
-
-## Build and Verification
-
-- `bun run build` must pass before pushing
-- `bun run typecheck` must pass before pushing
-- Run relevant checks after each feature implementation
-- Do not mark work complete until checks pass
-
-## Quality Checklist
-
-Before implementing new API functionality:
-
-- [ ] API function is in appropriate domain folder
-- [ ] Uses centralized axios configuration
-- [ ] Follows established naming conventions
-- [ ] Includes proper TypeScript types
-- [ ] Component remains focused on UI logic only
+- Architecture or package boundaries → `context/architecture.md`
+- Conventions → this file
+- Visual rules → `context/ui-context.md`
+- Product scope → `context/project-overview.md`
+- Feature behavior → `context/specs/*`
+- Completed work → `context/progress-tracker.md`

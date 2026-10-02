@@ -1,123 +1,195 @@
-# Architecture Context
+# Architecture
 
 ## Stack
 
-| Layer     | Technology              | Role                              |
-| --------- | ----------------------- | --------------------------------- |
-| Runtime   | Bun                     | Package manager and runtime       |
-| Monorepo  | Turborepo               | Build orchestration and caching   |
-| Language  | TypeScript (strict)     | Type-safe code                    |
-| Web App   | React + Vite            | Web UI framework                  |
-| Mobile    | React Native/Expo       | Mobile UI (future)                |
-| Shared    | Pure TypeScript packages| Chess logic and UI components     |
+| Layer    | Technology               | Role                                      |
+| -------- | ------------------------ | ----------------------------------------- |
+| Runtime  | Bun                      | Package manager and runtime               |
+| Monorepo | Turborepo                | Task orchestration and caching            |
+| Language | TypeScript (strict)      | Shared and app code                       |
+| Web      | React + Vite             | First platform                            |
+| Mobile   | React Native / Expo      | Reserved. Not implemented                 |
+| Domain   | `packages/chess`         | Pure chess logic                          |
+| UI       | `packages/ui`            | Reusable presentation only                |
+| Config   | `packages/config`        | Shared tooling configuration              |
 
-## System Boundaries
+## Layout
 
-- `apps/web/` — Owns the web application UI and entry point
-- `apps/mobile/` — Reserved for future mobile app (structure only)
-- `packages/chess/` — Owns all chess game logic, rules, and state management
-- `packages/ui/` — Owns reusable UI components for chess display
-- `packages/config/` — Owns shared TypeScript and tooling configuration
-- `context/` — Owns project documentation, specs, and workflow rules
+```text
+apps/
+├── web/                 # web pages, composition, browser behavior
+└── mobile/              # future mobile app only
 
-## Monorepo Architecture
+packages/
+├── chess/               # pure chess/domain logic
+├── ui/                  # reusable presentation
+└── config/              # shared configuration
 
+context/
+├── specs/               # required before any feature implementation
+├── architecture.md
+├── code-standards.md
+├── ai-workflow-rules.md
+├── project-overview.md
+├── ui-context.md
+└── progress-tracker.md
+
+CLAUDE.md
+AGENTS.md
 ```
-chess-game/
-├── apps/
-│   ├── web/          # React web application
-│   └── mobile/       # React Native mobile app (future)
-├── packages/
-│   ├── chess/        # Core chess logic (shared)
-│   ├── ui/           # Shared UI components (shared)
-│   └── config/       # Shared build configs
-├── context/
-│   └── specs/        # Feature specifications
-├── package.json      # Root workspace config
-├── turbo.json        # Turborepo config
-└── bun.lock          # Package lock
-```
 
-## Responsibility of Each Package
+## Package Responsibilities
 
 ### packages/chess
 
-- Chess rules and validation
-- Piece movement logic
-- Legal move calculation
-- Check, checkmate, draw detection
-- Game state management
+Contains ONLY chess/game domain logic.
+
+Allowed:
+
+- Board state
+- Pieces
+- Positions
+- Moves
+- Legal move generation
+- Move validation
+- Turn management
+- Captures
+- Check
+- Checkmate
+- Draw rules
+- Game state
 - Move history
-- NO UI concerns
+
+Must NOT depend on:
+
+- React
+- React Native
+- Browser APIs
+- DOM APIs
+- UI components
+- `apps/web`
+- `apps/mobile`
+
+Keep it pure TypeScript. It must be independently testable. Current `src/index.ts` is a type stub only. It is not a chess engine.
 
 ### packages/ui
 
-- Chessboard component
-- Chess piece display components
-- Square highlighting
-- Move indicators
-- Game status display
-- Depends on `packages/chess` for types
+Reusable presentation components.
+
+Must NOT contain chess rules, legal-move generation, check detection, or game-state transitions.
+
+May import domain types from `packages/chess` so web and mobile do not duplicate those types. If a component only needs a local visual prop, do not pull domain logic in.
 
 ### apps/web
 
-- Main React application
-- Game container and state
-- User interactions
-- Uses `packages/chess` and `packages/ui`
+Web-specific:
+
+- Pages and routes
+- Application composition
+- Browser behavior
+- Web-specific state wiring
+- Web-specific UI
+
+Calls into `packages/chess` for rules. Renders with local components or `packages/ui`.
 
 ### apps/mobile
 
-- Reserved for future React Native implementation
-- Will consume `packages/chess` and `packages/ui`
+Reserved for a future React Native/Expo app. Structure only. Do not implement it.
 
-## Shared Code Strategy
+### packages/config
 
-Chess game logic lives in `packages/chess`. This package:
+Shared TypeScript/tooling config. No product logic.
 
-- Contains no React or UI code
-- Exports pure TypeScript types and functions
-- Can be imported by web or future mobile without bringing in UI dependencies
-- Is tested independently
+## Dependency Direction
 
+```text
+apps/web ────────┐
+                 ├──> packages/chess
+                 └──> packages/ui
+
+apps/mobile ─────┐
+                 ├──> packages/chess
+                 └──> packages/ui
 ```
-Web UI ─────┐
-            ├── packages/chess (shared logic)
-Mobile UI ──┘
+
+Rules:
+
+- Apps may depend on packages.
+- Packages must never depend on apps.
+- `packages/chess` stays independent of UI and apps.
+- `packages/ui` may depend on `packages/chess` types only. It must not own rules.
+- No circular dependencies.
+- Do not copy chess logic into `apps/web` or `apps/mobile`.
+- If a dependency violates this, refactor it. Do not ignore the rule.
+
+Preferred flow:
+
+```text
+ChessBoard UI
+      ↓
+Application / game wiring
+      ↓
+packages/chess
 ```
 
-## Web/Mobile Separation
+## Shared Code
 
-| Concern          | Web          | Mobile       |
-| ---------------- | ------------ | ------------ |
-| UI Framework     | React + Vite | React Native |
-| Entry Point      | web/src/main | mobile/src/  |
-| Shared Logic     | packages/chess | packages/chess |
-| Shared UI        | packages/ui  | packages/ui   |
-| Platform Code    | apps/web/    | apps/mobile/  |
+Put logic in a package only when it is genuinely shared or is domain logic that must stay out of UI.
 
-## Dependency Direction Rules
+Do not move every small helper into a shared package early.
 
-1. Apps (`apps/web`, `apps/mobile`) can depend on packages
-2. Packages can depend on other packages
-3. Never create circular dependencies
-4. `packages/chess` has NO dependencies on other packages in this repo
-5. `packages/ui` depends on `packages/chess`
-6. `apps/web` depends on both `packages/chess` and `packages/ui`
+Do not duplicate identical domain types across apps. Domain types live in `packages/chess`.
 
-```
-apps/web ──────┐
-               ├──> packages/chess (core logic)
-apps/mobile ───┘         │
-                         └──> packages/ui (depends on chess)
-                                  │
-packages/config <── shared configs
-```
+## Current Scope
+
+Build later, after specs are approved:
+
+- Web app
+- Local two-player chess
+- Classic board and standard pieces
+- Movement, legal moves, turns, captures
+- Check, checkmate, draw, reset
+
+Do not build yet:
+
+- Authentication
+- Backend
+- Database
+- Online multiplayer
+- Friends, matchmaking, ratings, history
+- Mobile implementation
+
+Those need their own future specs. Do not add repositories, services, or persistence until a backend spec exists.
+
+## Design Patterns
+
+Use a pattern only when it solves a real problem. Prefer simple code.
+
+- Factory: only when construction has real branching or repeated setup, for example a future `createChessPiece(type, color)`. Do not wrap a trivial object.
+- Strategy: only when interchangeable algorithms actually exist, for example move validation or a future game mode. Do not add a strategy for one behavior.
+- Adapter: only when translating an external API into an internal interface.
+- Repository: do not introduce until persistence exists.
+
+Before adding an abstraction, it must have real duplication or more than one consumer, reduce coupling, and be needed now.
+
+## File Responsibility
+
+One clear responsibility per file. Prefer names like `move-validator.ts`, `board-state.ts`, `legal-moves.ts`.
+
+Avoid dump files (`utils.ts`, `helpers.ts`, `game-manager.ts`) unless the name is honestly narrow.
+
+Size is a guideline, not a quota:
+
+- under 250 lines: normal
+- 250–350: review whether responsibilities mixed
+- over 350: split when practical
+
+Split on responsibility change, independent concepts, or testable reuse. Do not fragment a file just to hit a number.
 
 ## Invariants
 
-1. Chess logic must never import from UI packages
-2. UI components must not contain chess rule validation
-3. New features require a specification in `context/specs/` before implementation
-4. Shared logic belongs in packages, not in app code
-5. Do not introduce backend infrastructure prematurely
+1. Chess rules never live in UI components.
+2. `packages/chess` never imports React, DOM, or app code.
+3. No feature implementation without a spec in `context/specs/`.
+4. No backend, auth, database, or mobile app until a spec says so.
+5. Docs change when boundaries change. Do not silently drift.

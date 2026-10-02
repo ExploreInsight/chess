@@ -42,3 +42,7 @@ A "New Game" or "Reset" button below the board. Clicking it resets all pieces to
 ## Dependencies
 
 - Game state structure must be defined first
+
+## Open Questions
+
+- No confirmation dialog in v0. Confirm if reset should ask first.

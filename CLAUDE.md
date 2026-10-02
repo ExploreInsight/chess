@@ -1,63 +1,52 @@
-# Chess Game - Claude Code Instructions
+# Chess Game — Claude Code Instructions
 
-## Read Before Working
+These files are project instructions, not optional notes.
 
-Read these files in order before implementing or making any architectural decision:
+## Read before any meaningful change
 
-1. `context/project-overview.md` — Product definition, goals, features, and scope
-2. `context/architecture.md` — System structure, boundaries, package responsibilities, and invariants
-3. `context/ui-context.md` — Theme, colors, typography, and component conventions
-4. `context/code-standards.md` — Implementation rules, naming conventions, and import organization
-5. `context/ai-workflow-rules.md` — Development workflow, scoping rules, and delivery approach
-6. `context/progress-tracker.md` — Current phase, completed work, open questions, and next steps
-7. Relevant files in `context/specs/` — Feature specifications for the feature you are working on
+1. `context/project-overview.md`
+2. `context/architecture.md`
+3. `context/ui-context.md`
+4. `context/code-standards.md`
+5. `context/ai-workflow-rules.md`
+6. `context/progress-tracker.md`
+7. The relevant file in `context/specs/`
 
-## Core Principles
+## Required behavior
 
-### Do
+1. Check `context/specs/` before implementation.
+2. Never implement an undocumented feature. Create the spec first.
+3. If behavior is ambiguous, stop and ask. Record it under `Open Questions`.
+4. Respect package boundaries.
+5. Keep chess logic in `packages/chess`. No React, DOM, or app imports there.
+6. Do not put chess rules in UI components.
+7. Follow the import convention in `context/code-standards.md`.
+8. Follow file-size and single-responsibility guidelines. They are guidelines, not quotas.
+9. Use design patterns only when they solve a real problem.
+10. Do not add premature abstractions, dependencies, backend, auth, database, or mobile implementation.
+11. Explain the approach, then change code.
+12. After implementation, run `bun run typecheck` and `bun run build`.
+13. Verify the feature. Domain rules need domain tests, not UI-only checks.
+14. Update the spec if requirements changed.
+15. Update `context/progress-tracker.md` only when work is actually verified.
+16. Update architecture docs when boundaries change.
 
-- Follow the spec-driven workflow: always check `context/specs/` before implementing
-- Keep chess logic in `packages/chess` — never mix rules into UI components
-- Keep UI components in `packages/ui` or `apps/web`
-- Build small, verifiable increments
-- Update `progress-tracker.md` after each meaningful change
-- Run `bun run build` and `bun run typecheck` before pushing
+## Dependency direction
 
-### Never Do
+```text
+apps/web ────────┐
+                 ├──> packages/chess
+                 └──> packages/ui
 
-- Implement undocumented features
-- Skip feature specifications
-- Add unnecessary dependencies
-- Introduce backend infrastructure prematurely
-- Mix chess logic into UI components
-- Duplicate shared logic between web and future mobile
-- Rewrite working code without a reason
-- Mark incomplete work as complete
-
-## Architecture Rules
-
+apps/mobile ─────┐
+                 ├──> packages/chess
+                 └──> packages/ui
 ```
-apps/web ──────┐
-              ├──> packages/chess (core logic - NO UI)
-apps/mobile ───┘         │
-                        └──> packages/ui (depends on chess)
-```
 
-- `packages/chess` has NO dependencies on other packages in this repo
-- `packages/ui` depends on `packages/chess`
-- Apps depend on packages
-- Never create circular dependencies
+Packages never depend on apps. `packages/chess` never depends on UI.
 
-## Implementation Workflow
+## Current scope
 
-1. Explain your intended implementation approach
-2. Make the changes
-3. Run `bun run build` and `bun run typecheck`
-4. Verify the feature works
-5. Update relevant context files if needed
-6. Update `progress-tracker.md`
-7. Summarize what changed
+Local two-player web chess only, and only after its specs are approved.
 
-## Important
-
-The initial version implements only local two-player chess. Online multiplayer, authentication, friends, matchmaking, ratings, and mobile are future phases. Do not build infrastructure for these until they are explicitly required.
+Do not build authentication, backend, database, multiplayer, friends, matchmaking, ratings, history, or the mobile app.

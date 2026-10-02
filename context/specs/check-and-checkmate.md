@@ -53,3 +53,7 @@ When a player's king is under attack, they must move out of check. The king squa
 
 - Turn system must be working first
 - Piece movement must be working first
+
+## Open Questions
+
+- Castling through check and en passant checks are not specified. Do not implement those rules inside this feature until specified.

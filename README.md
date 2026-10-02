@@ -1,125 +1,48 @@
 # Chess Game
 
-A chess game built as a Turborepo monorepo with Bun, TypeScript, and React.
+Local two-player chess, built as a Bun + Turborepo + TypeScript monorepo. Web first. Mobile later.
 
-## Tech Stack
+Chess rules are not implemented yet. This repository is architecture and documentation only until that work is approved.
 
-- **Runtime/Package Manager**: Bun
-- **Monorepo**: Turborepo
-- **Language**: TypeScript (strict mode)
-- **Web App**: React + Vite
-- **Mobile**: Reserved for future React Native/Expo
+## Stack
 
-## Project Structure
+- Bun
+- Turborepo
+- TypeScript (strict)
+- Web: React + Vite
+- Mobile: React Native / Expo reserved, not implemented
 
-```
-chess-game/
-├── apps/
-│   ├── web/              # React web application
-│   └── mobile/           # React Native mobile app (future)
-├── packages/
-│   ├── chess/            # Core chess logic (shared)
-│   ├── ui/               # Shared UI components (shared)
-│   └── config/           # Shared build configs
-├── context/
-│   └── specs/            # Feature specifications
-├── package.json          # Root workspace config
-├── turbo.json            # Turborepo config
-├── bun.lock              # Package lock
-└── README.md
+## Structure
+
+```text
+apps/web/                 web app
+apps/mobile/              future mobile placeholder
+packages/chess/           pure chess domain logic
+packages/ui/              reusable presentation
+packages/config/          shared tooling config
+context/specs/            feature specs, required before implementation
 ```
 
-## Quick Start
+## Commands
 
 ```bash
-# Install dependencies
 bun install
-
-# Run type checking
 bun run typecheck
-
-# Build all packages
 bun run build
-
-# Run development server
 bun run dev
 ```
 
-## Architecture
+## Rules
 
-```
-apps/web ─────┐
-              ├──> packages/chess (core logic)
-apps/mobile ───┘         │
-                        └──> packages/ui (depends on chess)
-```
+- No feature work without a spec in `context/specs/`.
+- Chess rules live in `packages/chess`, not in UI.
+- Apps may depend on packages. Packages must not depend on apps.
+- Do not add auth, backend, database, multiplayer, or mobile implementation until specified.
 
-### Package Responsibilities
+Read `CLAUDE.md` and `context/architecture.md` before changing the project.
 
-- `packages/chess` — Chess rules, validation, game state (NO UI)
-- `packages/ui` — React components for chess display
-- `apps/web` — Main web application
-- `apps/mobile` — Future mobile implementation
+## Scope now
 
-## Development Rules
+Classic local chess on web: board, pieces, movement, legal moves, turns, captures, check, checkmate, draw, reset.
 
-### Import Organization
-
-Always organize imports with comment headers:
-
-```typescript
-// ** import types
-import type { GameState } from "@chess-game/chess";
-
-// ** import lib
-import { Button } from "@chess-game/ui";
-import { helperFunction } from "./helpers";
-```
-
-### Feature Development
-
-1. Check `context/specs/` for feature specification
-2. If no spec exists, create one first
-3. Implement feature
-4. Run `bun run typecheck` and `bun run build`
-5. Update `context/progress-tracker.md`
-
-### Dependency Rules
-
-- `packages/chess` has NO dependencies on other packages
-- `packages/ui` depends on `packages/chess`
-- Apps depend on packages
-- Never create circular dependencies
-
-## Phases
-
-### Phase 1: Local Two-Player Chess (Current)
-- [ ] Chessboard rendering
-- [ ] Piece display
-- [ ] Square selection
-- [ ] Legal move calculation
-- [ ] Turn handling
-- [ ] Move execution
-- [ ] Check detection
-- [ ] Checkmate detection
-- [ ] Draw (stalemate) detection
-- [ ] Game reset
-
-### Phase 2: Future
-- [ ] Online multiplayer
-- [ ] Authentication
-- [ ] Friend requests
-- [ ] Game rooms
-- [ ] Match history
-- [ ] Ratings
-- [ ] Mobile app
-
-## Documentation
-
-- [Context Files](./context/)
-- [Feature Specs](./context/specs/)
-- [CLAUDE.md](./CLAUDE.md)
-
-## License
-
-Private project - all rights reserved.
+Not now: auth, backend, database, online play, friends, matchmaking, ratings, history, mobile app.

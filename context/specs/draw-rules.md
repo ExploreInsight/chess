@@ -44,3 +44,7 @@ When no player can win (stalemate or other draw conditions), the game ends in a 
 
 - Check/checkmate detection must be working first
 - Legal move calculation must be working first
+
+## Open Questions
+
+- v0 draw is stalemate only. Threefold, 50-move, and insufficient material stay future specs.

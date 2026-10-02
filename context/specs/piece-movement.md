@@ -51,3 +51,8 @@ Allow players to select pieces and move them to valid squares according to chess
 ## Dependencies
 
 - Chessboard component must be working first
+
+## Open Questions
+
+- En passant and castling are not specified here. Do not invent them in this feature.
+- Promotion piece choice is not specified. Ask before implementing promotion UI.

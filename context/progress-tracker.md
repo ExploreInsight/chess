@@ -3,14 +3,15 @@
 ## Current Phase
 
 - [x] Monorepo setup
-- [ ] Web app setup (Vite + React)
-- [ ] Shared package setup (chess logic)
-- [ ] Agent documentation setup
-- [ ] Initial chess implementation
+- [x] Web app scaffold (Vite + React placeholder only)
+- [x] Package scaffolds
+- [x] Agent and architecture documentation
+- [ ] Architecture review approval
+- [ ] Chess implementation (not started)
 
 ## Current Goal
 
-Set up the complete monorepo foundation with documentation and initial structure before implementing chess game features.
+Wait for architecture review. Do not implement the chessboard or game rules until explicitly approved.
 
 ## Completed
 
@@ -30,9 +31,11 @@ Set up the complete monorepo foundation with documentation and initial structure
 
 ## In Progress
 
-- [ ] Verify `bun run build` passes
-- [ ] Verify `bun run typecheck` passes
-- [ ] Push setup to GitHub
+- [ ] Architecture review approval
+
+## Not started
+
+- Chessboard and all game rules. Specs exist as drafts only.
 
 ## Next Up
 

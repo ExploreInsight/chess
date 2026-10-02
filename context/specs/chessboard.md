@@ -38,3 +38,8 @@ User opens the web app and sees a chessboard with all pieces in starting positio
 ## Dependencies
 
 - None (this is the first feature)
+
+## Open Questions
+
+- Square coordinates (a-h, 1-8) are optional for v0. Confirm before implementation.
+- Spec is drafted. Do not implement until architecture review is approved.

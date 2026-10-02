@@ -8,3 +8,15 @@ Read `docs/README.md` inside that installed package first, then read the relevan
 
 This block is written and re-added by `turbo` before repository-scoped commands when an AI agent is detected. In the Turborepo source repository, its template is defined in `crates/turborepo-cli/src/cli/agent_guidance.rs`. Removing the managed block while updates are enabled means a later qualifying invocation will add it again. Set `"agentGuidance": false` in the root `turbo.json` or `turbo.jsonc` to opt out; this does not remove an existing block. Keep the block committed with your work to avoid an uncommitted change on the next agent invocation.
 <!-- END:turborepo-agent-rules -->
+
+# Project agent rules
+
+These rules sit outside the managed Turborepo block. Do not remove or edit that block.
+
+- Read `CLAUDE.md` and `context/` before meaningful changes.
+- Do not implement a feature that has no file in `context/specs/`.
+- Do not start chessboard or game implementation until architecture review is explicitly approved.
+- Keep chess rules in `packages/chess`. Keep presentation out of that package.
+- Do not add backend, auth, database, multiplayer, or mobile implementation.
+- Do not commit `node_modules`, `.turbo`, or `dist`.
+- Verify with `bun run typecheck` and `bun run build` before calling setup or a feature done.

@@ -39,3 +39,7 @@ White always moves first. After each move, turn switches to the other player. A 
 ## Dependencies
 
 - Piece movement must be working first
+
+## Open Questions
+
+- None. White moves first unless product scope changes.
