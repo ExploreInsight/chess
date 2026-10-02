@@ -2,7 +2,7 @@
 
 Local two-player chess, built as a Bun + Turborepo + TypeScript monorepo. Web first. Mobile later.
 
-Chess rules are not implemented yet. This repository is architecture and documentation only until that work is approved.
+Local two-player chess is playable on web. v0 has no castling, en passant, or promotion picker. Pawns promote to a queen.
 
 ## Stack
 

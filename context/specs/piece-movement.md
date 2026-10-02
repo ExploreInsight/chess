@@ -54,5 +54,5 @@ Allow players to select pieces and move them to valid squares according to chess
 
 ## Open Questions
 
-- En passant and castling are not specified here. Do not invent them in this feature.
-- Promotion piece choice is not specified. Ask before implementing promotion UI.
+- Resolved for v0: no castling and no en passant.
+- Resolved for v0: a pawn that reaches the last rank promotes to a queen. No promotion picker.

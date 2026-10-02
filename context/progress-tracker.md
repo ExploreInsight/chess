@@ -31,26 +31,31 @@ Wait for architecture review. Do not implement the chessboard or game rules unti
 
 ## In Progress
 
-- [ ] Piece movement
+- None
 
 ## Completed features
 
 - [x] Chessboard rendering and starting position
+- [x] Piece selection, legal moves, captures, and queen promotion
+- [x] Turn handling
+- [x] Check and checkmate
+- [x] Stalemate draw
+- [x] New game reset
 
 ## Next Up
 
 After setup is complete, implement chess features in order:
 
 1. Chessboard rendering — done
-2. Piece display — done with board
-3. Square selection
-4. Legal move calculation
-5. Turn handling
-6. Move execution
-7. Check detection
-8. Checkmate detection
-9. Draw (stalemate) detection
-10. Game reset
+2. Piece display — done
+3. Square selection — done
+4. Legal move calculation — done
+5. Turn handling — done
+6. Move execution — done
+7. Check detection — done
+8. Checkmate detection — done
+9. Draw (stalemate) detection — done
+10. Game reset — done
 
 ## Open Questions
 

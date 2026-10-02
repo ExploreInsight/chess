@@ -9,4 +9,4 @@ export type {
 } from "./types";
 
 export { cloneBoard, createInitialBoard, isInside, samePosition } from "./board";
-export { createInitialGameState } from "./game";
+export { applyMove, checkedKing, createInitialGameState, evaluatePosition, getLegalMoves } from "./game";
