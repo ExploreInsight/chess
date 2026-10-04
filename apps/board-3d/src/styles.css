@@ -1,46 +1,24 @@
-html,
-body,
-#root {
-  margin: 0;
-  width: 100%;
-  height: 100%;
-  background: #312e2b;
-  color: #ffffff;
-  font-family: Inter, system-ui, sans-serif;
+@import "tailwindcss";
+
+@theme {
+  --color-board: #312e2b;
+  --color-surface: #272522;
+  --color-ink: #ffffff;
+  --font-sans: Inter, system-ui, sans-serif;
 }
 
-.stage {
-  width: 100%;
-  height: 100%;
-}
+@layer base {
+  html,
+  body,
+  #root {
+    @apply m-0 h-full w-full bg-board text-ink font-sans;
+  }
 
-.hud {
-  position: fixed;
-  left: 24px;
-  bottom: 24px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
+  button {
+    @apply cursor-pointer border-0 bg-surface px-3.5 py-2.5 text-ink;
+  }
 
-.hud p {
-  margin: 0;
-}
-
-.row {
-  display: flex;
-  gap: 8px;
-}
-
-button {
-  border: 0;
-  background: #272522;
-  color: #ffffff;
-  padding: 10px 14px;
-  cursor: pointer;
-}
-
-button:disabled {
-  opacity: 0.45;
-  cursor: default;
+  button:disabled {
+    @apply cursor-default opacity-45;
+  }
 }

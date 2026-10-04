@@ -78,7 +78,11 @@ Reusable presentation components.
 
 Must NOT contain chess rules, legal-move generation, check detection, or game-state transitions.
 
-May import domain types from `packages/chess` so web and mobile do not duplicate those types. If a component only needs a local visual prop, do not pull domain logic in.
+May import domain types from `packages/chess` so web and mobile do not duplicate those types.
+
+May use Tailwind classes and portable React. Must NOT depend on Radix, React Aria, or any DOM-only library, so it stays reusable. See `context/specs/ui-system.md`.
+
+shadcn/ui and React Aria components live in `apps/web/src/components` because they need the DOM.
 
 ### apps/web
 

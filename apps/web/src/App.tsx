@@ -11,7 +11,10 @@ import {
   getLegalMoves,
   resign,
 } from "@chess-game/chess";
-import { ChessBoard } from "@chess-game/ui";
+import { ChessBoard, pieceSymbol } from "@chess-game/ui";
+
+import { PromotionDialog } from "@/components/promotion-dialog";
+import { Button } from "@/components/ui/button";
 
 // ** import styles
 import "./styles.css";
@@ -54,6 +57,7 @@ export default function App() {
     )
     .map((move) => move.to);
   const finished = game.isCheckmate || game.isDraw || game.winner !== null;
+  const status = statusText(game);
 
   function finishMove(move: Move) {
     setGame(applyMove(game, move));
@@ -100,7 +104,7 @@ export default function App() {
   }
 
   return (
-    <main className="app">
+    <main className="flex min-h-screen flex-col items-center justify-center gap-4 p-6">
       <ChessBoard
         board={game.board}
         selected={selected}
@@ -108,27 +112,34 @@ export default function App() {
         checkedKing={checkedKing(game)}
         onSquareClick={onSquareClick}
       />
-      <p className="status">{statusText(game)}</p>
-      {promotions.length > 0 ? (
-        <div className="promotion">
-          {promotions.map((move) => (
-            <button key={move.promotion} type="button" onClick={() => finishMove(move)}>
-              {PROMOTION_LABELS[move.promotion ?? "queen"]}
-            </button>
-          ))}
-        </div>
-      ) : null}
-      <div className="actions">
-        <button type="button" className="reset" onClick={resetGame}>
-          New Game
-        </button>
-        <button type="button" className="reset" disabled={finished} onClick={() => setGame(resign(game))}>
+
+      <p role="status" aria-live="polite" className="m-0">
+        {status}
+      </p>
+
+      <div className="flex gap-2">
+        <Button onClick={resetGame}>New Game</Button>
+        <Button disabled={finished} onClick={() => setGame(resign(game))}>
           Resign
-        </button>
-        <button type="button" className="reset" disabled={finished} onClick={() => setGame(agreeDraw(game))}>
+        </Button>
+        <Button disabled={finished} onClick={() => setGame(agreeDraw(game))}>
           Agree Draw
-        </button>
+        </Button>
       </div>
+
+      <PromotionDialog
+        isOpen={promotions.length > 0}
+        onClose={() => setPromotions([])}
+        choices={promotions.map((move) => ({
+          label: PROMOTION_LABELS[move.promotion ?? "queen"],
+          symbol: pieceSymbol({
+            type: move.promotion ?? "queen",
+            color: game.currentPlayer,
+            hasMoved: true,
+          }),
+          onSelect: () => finishMove(move),
+        }))}
+      />
     </main>
   );
 }

@@ -4,6 +4,14 @@
 
 Classic physical chessboard aesthetic. Traditional and clean — not a gaming dashboard. Feels like sitting at a real chess table with a quality wooden set.
 
+## Styling System
+
+Tailwind CSS v4 with `@tailwindcss/vite`. Tokens are defined in each app's `src/styles.css` under `@theme`.
+
+shadcn/ui provides the component primitives. React Aria provides accessible behavior for dialogs and focus.
+
+Components in `packages/ui` use Tailwind utility classes with the same token names, so the web app and the 3D app look identical.
+
 ## Color Palette
 
 | Role              | CSS Variable           | Value     | Description                    |

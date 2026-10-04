@@ -41,6 +41,10 @@ Local chess rules are on main. The 3D board is complete on `feat/3d-board` and i
 - [x] Check and checkmate
 - [x] Stalemate, threefold, fifty-move, insufficient material, agreement, and resignation
 - [x] New game reset
+- [x] Tailwind CSS v4 in both apps
+- [x] shadcn/ui Button with project tokens
+- [x] React Aria promotion dialog
+- [x] Keyboard and screen reader support on the board
 
 ## Next Up
 

@@ -84,7 +84,7 @@ export default function App() {
   }
 
   return (
-    <main className="stage">
+    <main className="h-full w-full">
       <Canvas shadows camera={{ position: [0, 9, 8], fov: 42 }}>
         <ChessScene
           board={game.board}
@@ -94,10 +94,12 @@ export default function App() {
           onSquareClick={onSquareClick}
         />
       </Canvas>
-      <div className="hud">
-        <p>{statusText(game)}</p>
+      <div className="fixed bottom-6 left-6 flex flex-col gap-2.5">
+        <p role="status" aria-live="polite" className="m-0">
+          {statusText(game)}
+        </p>
         {promotions.length > 0 ? (
-          <div className="row">
+          <div role="group" aria-label="Choose promotion piece" className="flex gap-2">
             {promotions.map((move) => (
               <button key={move.promotion} type="button" onClick={() => finishMove(move)}>
                 {PROMOTION_LABELS[move.promotion ?? "queen"]}
@@ -105,7 +107,7 @@ export default function App() {
             ))}
           </div>
         ) : null}
-        <div className="row">
+        <div role="group" aria-label="Game controls" className="flex gap-2">
           <button
             type="button"
             onClick={() => {

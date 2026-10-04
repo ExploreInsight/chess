@@ -154,6 +154,25 @@ Prioritize, once those features are specified and implemented:
 
 Do not add a test runner until the first domain feature is approved. Do not mark rules complete without domain tests.
 
+## Styling
+
+- Tailwind CSS v4 is the only styling tool in the apps. No plain CSS files, no CSS-in-JS.
+- Tokens live in the app stylesheet under `@theme`. Do not hardcode hex values in components.
+- Use `cn()` from `apps/web/src/lib/utils.ts` for conditional classes.
+- shadcn/ui components live in `apps/web/src/components/ui`. Components are copied in, not imported from a package.
+- Radix and React Aria stay in `apps/web` because they need the DOM. Never put them in `packages/ui`.
+- `packages/ui` may use Tailwind classes and portable React only.
+
+## Accessibility
+
+- Every interactive element is reachable and operable by keyboard.
+- The board is an ARIA grid. Squares are labelled with file, rank, and piece, such as "e2, white pawn".
+- Arrow keys move focus between squares. Home and End jump to the row edges.
+- Status and result changes are announced through a live region.
+- Dialogs trap focus and close on Escape.
+- Focus is always visible. Never remove focus rings without a replacement.
+- Groups of related controls get an accessible group label.
+
 ## Verification
 
 - `bun run typecheck` and `bun run build` must pass before a feature is called done.
