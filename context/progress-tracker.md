@@ -11,7 +11,7 @@
 
 ## Current Goal
 
-Local chess rules are implemented. The 3D board is a separate branch and is not on main.
+Local chess rules are on main. The 3D board is complete on `feat/3d-board` and is not pushed to main.
 
 ## Completed
 

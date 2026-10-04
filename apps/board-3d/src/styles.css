@@ -1,0 +1,46 @@
+html,
+body,
+#root {
+  margin: 0;
+  width: 100%;
+  height: 100%;
+  background: #312e2b;
+  color: #ffffff;
+  font-family: Inter, system-ui, sans-serif;
+}
+
+.stage {
+  width: 100%;
+  height: 100%;
+}
+
+.hud {
+  position: fixed;
+  left: 24px;
+  bottom: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.hud p {
+  margin: 0;
+}
+
+.row {
+  display: flex;
+  gap: 8px;
+}
+
+button {
+  border: 0;
+  background: #272522;
+  color: #ffffff;
+  padding: 10px 14px;
+  cursor: pointer;
+}
+
+button:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
