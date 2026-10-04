@@ -3,7 +3,12 @@ import type { GameState, Move, Position } from "./types";
 
 // ** import lib
 import { createInitialBoard, samePosition } from "./board";
+import { isInsufficientMaterial, nextHalfmoveClock, positionKey, repetitionCount } from "./draws";
 import {
+  applyMoveToBoard,
+  castlingMoves,
+  enPassantMoves,
+  enPassantTarget,
   findKing,
   isKingInCheck,
   moveLeavesKingInCheck,
@@ -11,20 +16,31 @@ import {
   pseudoMoves,
 } from "./moves";
 
-export function createInitialGameState(): GameState {
+function openState(board: GameState["board"], currentPlayer: GameState["currentPlayer"]): GameState {
   return {
-    board: createInitialBoard(),
-    currentPlayer: "white",
+    board,
+    currentPlayer,
     isCheck: false,
     isCheckmate: false,
     isDraw: false,
     winner: null,
+    result: null,
     moveHistory: [],
+    halfmoveClock: 0,
+    positionHistory: [],
   };
 }
 
+export function createInitialGameState(): GameState {
+  const draft = openState(createInitialBoard(), "white");
+  return evaluatePosition({
+    ...draft,
+    positionHistory: [positionKey(draft)],
+  });
+}
+
 export function isGameOver(state: GameState): boolean {
-  return state.isCheckmate || state.isDraw;
+  return state.isCheckmate || state.isDraw || state.winner !== null;
 }
 
 export function getLegalMoves(state: GameState, from: Position): Move[] {
@@ -32,9 +48,13 @@ export function getLegalMoves(state: GameState, from: Position): Move[] {
   const piece = state.board[from.row]?.[from.col];
   if (!piece || piece.color !== state.currentPlayer) return [];
 
-  return pseudoMoves(state.board, from).filter(
-    (move) => !moveLeavesKingInCheck(state.board, move, piece.color),
-  );
+  const generated = [
+    ...pseudoMoves(state.board, from),
+    ...castlingMoves(state.board, from),
+    ...enPassantMoves(state.board, from, enPassantTarget(state.moveHistory, state.board)),
+  ];
+
+  return generated.filter((move) => !moveLeavesKingInCheck(state.board, move, piece.color));
 }
 
 export function hasLegalMoves(state: GameState): boolean {
@@ -48,48 +68,105 @@ export function hasLegalMoves(state: GameState): boolean {
 }
 
 export function evaluatePosition(state: GameState): GameState {
+  if (state.result === "agreement" || state.result === "resignation") return state;
+
   const inCheck = isKingInCheck(state.board, state.currentPlayer);
-  const legal = hasLegalMoves({ ...state, isCheck: inCheck, isCheckmate: false, isDraw: false });
-  return {
+  const legal = hasLegalMoves({
     ...state,
     isCheck: inCheck,
-    isCheckmate: inCheck && !legal,
-    isDraw: !inCheck && !legal,
-    winner: inCheck && !legal ? opponent(state.currentPlayer) : null,
-  };
+    isCheckmate: false,
+    isDraw: false,
+    winner: null,
+    result: null,
+  });
+  const checkmate = inCheck && !legal;
+  const key = positionKey(state);
+  const repeats = repetitionCount(state.positionHistory, key);
+
+  if (checkmate) {
+    return {
+      ...state,
+      isCheck: true,
+      isCheckmate: true,
+      isDraw: false,
+      winner: opponent(state.currentPlayer),
+      result: "checkmate",
+    };
+  }
+
+  if (!legal) {
+    return { ...state, isCheck: false, isCheckmate: false, isDraw: true, winner: null, result: "stalemate" };
+  }
+  if (state.halfmoveClock >= 100) {
+    return { ...state, isCheck: inCheck, isCheckmate: false, isDraw: true, winner: null, result: "fifty-move" };
+  }
+  if (repeats >= 3) {
+    return { ...state, isCheck: inCheck, isCheckmate: false, isDraw: true, winner: null, result: "threefold" };
+  }
+  if (isInsufficientMaterial(state.board)) {
+    return {
+      ...state,
+      isCheck: false,
+      isCheckmate: false,
+      isDraw: true,
+      winner: null,
+      result: "insufficient-material",
+    };
+  }
+
+  return { ...state, isCheck: inCheck, isCheckmate: false, isDraw: false, winner: null, result: null };
 }
 
 export function applyMove(state: GameState, move: Move): GameState {
   const legal = getLegalMoves(state, move.from).some(
     (candidate) =>
-      samePosition(candidate.to, move.to) && candidate.promotion === move.promotion,
+      samePosition(candidate.to, move.to) &&
+      candidate.promotion === move.promotion &&
+      candidate.castle === move.castle &&
+      candidate.enPassant === move.enPassant,
   );
   if (!legal) return state;
 
-  const next: GameState = {
-    board: state.board,
-    currentPlayer: opponent(state.currentPlayer),
+  const board = applyMoveToBoard(state.board, move);
+  const moveHistory = [...state.moveHistory, move];
+  const currentPlayer = opponent(state.currentPlayer);
+  const draft: GameState = {
+    ...state,
+    board,
+    currentPlayer,
+    moveHistory,
+    halfmoveClock: nextHalfmoveClock(state, move),
+    positionHistory: [],
     isCheck: false,
     isCheckmate: false,
     isDraw: false,
     winner: null,
-    moveHistory: [...state.moveHistory, move],
+    result: null,
   };
-  next.board = applyBoard(state, move);
-  return evaluatePosition(next);
+  draft.positionHistory = [...state.positionHistory, positionKey(draft)];
+  return evaluatePosition(draft);
 }
 
-function applyBoard(state: GameState, move: Move) {
-  const board = state.board.map((row) => row.map((piece) => (piece ? { ...piece } : null)));
-  const piece = board[move.from.row]?.[move.from.col];
-  if (!piece) return board;
-  board[move.from.row][move.from.col] = null;
-  board[move.to.row][move.to.col] = {
-    ...piece,
-    type: move.promotion ?? piece.type,
-    hasMoved: true,
+export function resign(state: GameState): GameState {
+  if (isGameOver(state)) return state;
+  return {
+    ...state,
+    isCheckmate: false,
+    isDraw: false,
+    winner: opponent(state.currentPlayer),
+    result: "resignation",
   };
-  return board;
+}
+
+export function agreeDraw(state: GameState): GameState {
+  if (isGameOver(state)) return state;
+  return {
+    ...state,
+    isCheckmate: false,
+    isDraw: true,
+    winner: null,
+    result: "agreement",
+  };
 }
 
 export function checkedKing(state: GameState): Position | null {

@@ -2,49 +2,45 @@
 
 ## Goal
 
-Detect when the game ends in a draw rather than a win.
+End the game in a draw when the rules say neither side wins.
 
 ## User Experience
 
-When no player can win (stalemate or other draw conditions), the game ends in a draw. Both players are notified.
+The status line names the draw. Play stops. New Game starts again.
 
 ## Functional Requirements
 
-### Stalemate Detection
-
-- When a player has no legal moves but is NOT in check
-- Game ends in draw
-
-### Future Draw Conditions (not in v0)
-
-- Threefold repetition
-- 50-move rule
-- Mutual agreement
-- Insufficient material
+- Stalemate: no legal move and not in check
+- Threefold repetition: the same position occurs three times. Position includes side to move, castling rights, and en passant rights
+- Fifty-move rule: 50 moves by each side with no pawn move and no capture. Tracked as 100 half-moves
+- Insufficient material: king vs king, king and bishop vs king, king and knight vs king, or king and bishop vs king and bishop on the same color
+- Agreement: either player at the board can accept a draw
+- Checkmate beats a draw if the same move is checkmate
 
 ## Technical Requirements
 
-- `isStalemate(board, color)` function
-- Check if player has no legal moves AND not in check
-- Update `isDraw` in game state
-- Display "Draw by stalemate!" or similar
+- Decisions live in `packages/chess`
+- `result` records the reason
+- `halfmoveClock` resets on pawn moves and captures
+- Local play applies threefold and fifty-move automatically so the game actually ends
 
 ## Edge Cases
 
-- Stalemate detection must run after checkmate check (checkmate takes precedence)
-- Need to verify no legal moves exist for the player
+- Checkmate is not converted into a draw
+- A capture or pawn move resets the fifty-move clock
+- En passant counts as a capture
 
 ## Acceptance Criteria
 
-1. Stalemate detected when player has no legal moves but not in check
-2. Game ends in draw (not checkmate) on stalemate
-3. Correct message displayed to players
+1. Stalemate, threefold, fifty-move, and insufficient material set `isDraw`
+2. The status names the reason
+3. No further moves are legal after a draw
 
 ## Dependencies
 
-- Check/checkmate detection must be working first
-- Legal move calculation must be working first
+- Legal moves
+- Check detection
 
 ## Open Questions
 
-- v0 draw is stalemate only. Threefold, 50-move, and insufficient material stay future specs.
+- None. Automatic threefold and fifty-move are the local-play rule.

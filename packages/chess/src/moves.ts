@@ -114,14 +114,16 @@ function pushIfLegalTarget(moves: Move[], board: Board, from: Position, row: num
   if (!isInside(row, col)) return false;
   const target = board[row]?.[col];
   const piece = board[from.row]?.[from.col];
-  if (!piece) return false;
-  if (target?.color === piece.color) return false;
+  if (!piece || target?.color === piece.color) return true;
 
-  const move: Move = { from, to: { row, col } };
-  if (piece.type === "pawn" && (row === 0 || row === 7)) {
-    move.promotion = "queen";
+  const promotions: Array<Piece["type"] | undefined> =
+    piece.type === "pawn" && (row === 0 || row === 7)
+      ? ["queen", "rook", "bishop", "knight"]
+      : [undefined];
+
+  for (const promotion of promotions) {
+    moves.push({ from, to: { row, col }, promotion });
   }
-  moves.push(move);
   return target !== null;
 }
 
@@ -190,6 +192,58 @@ export function pseudoMoves(board: Board, from: Position): Move[] {
   return moves;
 }
 
+export function castlingMoves(board: Board, from: Position): Move[] {
+  const piece = board[from.row]?.[from.col];
+  if (!piece || piece.type !== "king" || piece.hasMoved) return [];
+  if (isKingInCheck(board, piece.color)) return [];
+
+  const row = piece.color === "white" ? 7 : 0;
+  if (from.row !== row || from.col !== 4) return [];
+
+  const moves: Move[] = [];
+  for (const side of ["kingside", "queenside"] as const) {
+    const rookCol = side === "kingside" ? 7 : 0;
+    const rook = board[row]?.[rookCol];
+    if (!rook || rook.type !== "rook" || rook.color !== piece.color || rook.hasMoved) continue;
+
+    const emptyCols = side === "kingside" ? [5, 6] : [1, 2, 3];
+    if (emptyCols.some((col) => board[row]?.[col])) continue;
+
+    const passedCols = side === "kingside" ? [5, 6] : [2, 3];
+    const attacked = passedCols.some((col) =>
+      isSquareAttacked(board, { row, col }, opponent(piece.color)),
+    );
+    if (attacked) continue;
+
+    moves.push({
+      from,
+      to: { row, col: side === "kingside" ? 6 : 2 },
+      castle: side,
+    });
+  }
+  return moves;
+}
+
+export function enPassantTarget(history: Move[], board: Board): Position | null {
+  const last = history.at(-1);
+  if (!last) return null;
+  const pawn = board[last.to.row]?.[last.to.col];
+  if (!pawn || pawn.type !== "pawn") return null;
+  if (Math.abs(last.to.row - last.from.row) !== 2 || last.to.col !== last.from.col) return null;
+  return { row: (last.from.row + last.to.row) / 2, col: last.to.col };
+}
+
+export function enPassantMoves(board: Board, from: Position, target: Position | null): Move[] {
+  if (!target) return [];
+  const piece = board[from.row]?.[from.col];
+  if (!piece || piece.type !== "pawn") return [];
+  const direction = piece.color === "white" ? -1 : 1;
+  if (from.row + direction !== target.row || Math.abs(from.col - target.col) !== 1) return [];
+  const captured = board[from.row]?.[target.col];
+  if (!captured || captured.type !== "pawn" || captured.color === piece.color) return [];
+  return [{ from, to: target, enPassant: true }];
+}
+
 export function applyMoveToBoard(board: Board, move: Move): Board {
   const next = cloneBoard(board);
   const piece = next[move.from.row]?.[move.from.col];
@@ -200,6 +254,21 @@ export function applyMoveToBoard(board: Board, move: Move): Board {
     type: move.promotion ?? piece.type,
     hasMoved: true,
   };
+
+  if (move.castle) {
+    const rookFrom = move.castle === "kingside" ? 7 : 0;
+    const rookTo = move.castle === "kingside" ? 5 : 3;
+    const rook = next[move.from.row]?.[rookFrom];
+    next[move.from.row][rookFrom] = null;
+    if (rook) {
+      next[move.from.row][rookTo] = { ...rook, hasMoved: true };
+    }
+  }
+
+  if (move.enPassant) {
+    next[move.from.row][move.to.col] = null;
+  }
+
   return next;
 }
 

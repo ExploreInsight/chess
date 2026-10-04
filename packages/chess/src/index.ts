@@ -1,5 +1,6 @@
 export type {
   Board,
+  GameResult,
   GameState,
   Move,
   Piece,
@@ -9,4 +10,12 @@ export type {
 } from "./types";
 
 export { cloneBoard, createInitialBoard, isInside, samePosition } from "./board";
-export { applyMove, checkedKing, createInitialGameState, evaluatePosition, getLegalMoves } from "./game";
+export {
+  agreeDraw,
+  applyMove,
+  checkedKing,
+  createInitialGameState,
+  evaluatePosition,
+  getLegalMoves,
+  resign,
+} from "./game";

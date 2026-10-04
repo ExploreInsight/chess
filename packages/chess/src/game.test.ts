@@ -1,8 +1,26 @@
 import { describe, expect, test } from "bun:test";
 
 import { createEmptyBoard } from "./board";
+import { positionKey } from "./draws";
 import { applyMove, createInitialGameState, evaluatePosition, getLegalMoves } from "./game";
-import type { GameState, Move } from "./types";
+import type { Board, GameState, Move, PlayerColor } from "./types";
+
+function sitting(board: Board, currentPlayer: PlayerColor, halfmoveClock = 0): GameState {
+  const draft: GameState = {
+    board,
+    currentPlayer,
+    isCheck: false,
+    isCheckmate: false,
+    isDraw: false,
+    winner: null,
+    result: null,
+    moveHistory: [],
+    halfmoveClock,
+    positionHistory: [],
+  };
+  draft.positionHistory = [positionKey(draft)];
+  return evaluatePosition(draft);
+}
 
 function play(state: GameState, from: [number, number], to: [number, number]): GameState {
   const move = getLegalMoves(state, { row: from[0], col: from[1] }).find(
@@ -39,15 +57,11 @@ describe("piece movement and turns", () => {
     board[0][1] = { type: "rook", color: "black", hasMoved: true };
     board[7][7] = { type: "king", color: "white", hasMoved: true };
     board[0][7] = { type: "king", color: "black", hasMoved: true };
-    const state = evaluatePosition({
-      board,
-      currentPlayer: "white",
-      isCheck: false,
-      isCheckmate: false,
-      isDraw: false,
-      winner: null,
-      moveHistory: [],
-    });
+    const state = sitting(board, "white");
+    const choices = getLegalMoves(state, { row: 1, col: 0 }).filter(
+      (move) => move.to.row === 0 && move.to.col === 1,
+    );
+    expect(choices.map((move) => move.promotion)).toEqual(["queen", "rook", "bishop", "knight"]);
 
     const next = play(state, [1, 0], [0, 1]);
     expect(next.board[0][1]).toEqual({ type: "queen", color: "white", hasMoved: true });
@@ -78,19 +92,90 @@ describe("check, checkmate, and draw", () => {
     board[0][0] = { type: "king", color: "black", hasMoved: true };
     board[2][1] = { type: "queen", color: "white", hasMoved: true };
     board[7][7] = { type: "king", color: "white", hasMoved: true };
-    const state = evaluatePosition({
-      board,
-      currentPlayer: "black",
-      isCheck: false,
-      isCheckmate: false,
-      isDraw: false,
-      winner: null,
-      moveHistory: [],
-    });
+    const state = sitting(board, "black");
 
     expect(state.isCheck).toBe(false);
     expect(state.isCheckmate).toBe(false);
     expect(state.isDraw).toBe(true);
     expect(state.winner).toBeNull();
+  });
+});
+
+describe("blocking, castling, and en passant", () => {
+  test("a rook cannot pass through a pawn", () => {
+    const board = createEmptyBoard();
+    board[7][0] = { type: "rook", color: "white", hasMoved: false };
+    board[7][1] = { type: "pawn", color: "white", hasMoved: false };
+    board[7][4] = { type: "king", color: "white", hasMoved: false };
+    board[0][4] = { type: "king", color: "black", hasMoved: false };
+    const state = sitting(board, "white");
+
+    const destinations = getLegalMoves(state, { row: 7, col: 0 }).map((move) => move.to.col);
+    expect(destinations).not.toContain(2);
+    expect(destinations).not.toContain(3);
+  });
+
+  test("white can castle both sides when the path is clear", () => {
+    const board = createEmptyBoard();
+    board[7][4] = { type: "king", color: "white", hasMoved: false };
+    board[7][0] = { type: "rook", color: "white", hasMoved: false };
+    board[7][7] = { type: "rook", color: "white", hasMoved: false };
+    board[0][4] = { type: "king", color: "black", hasMoved: false };
+    const state = sitting(board, "white");
+
+    const castles = getLegalMoves(state, { row: 7, col: 4 }).filter((move) => move.castle);
+    expect(castles.map((move) => move.castle).sort()).toEqual(["kingside", "queenside"]);
+
+    const kingside = play(state, [7, 4], [7, 6]);
+    expect(kingside.board[7][6]?.type).toBe("king");
+    expect(kingside.board[7][5]?.type).toBe("rook");
+    expect(kingside.board[7][7]).toBeNull();
+  });
+
+  test("cannot castle through check", () => {
+    const board = createEmptyBoard();
+    board[7][4] = { type: "king", color: "white", hasMoved: false };
+    board[7][7] = { type: "rook", color: "white", hasMoved: false };
+    board[0][5] = { type: "rook", color: "black", hasMoved: true };
+    board[0][0] = { type: "king", color: "black", hasMoved: false };
+    const state = sitting(board, "white");
+
+    expect(getLegalMoves(state, { row: 7, col: 4 }).some((move) => move.castle === "kingside")).toBe(false);
+  });
+
+  test("captures en passant on the next move only", () => {
+    let state = createInitialGameState();
+    state = play(state, [6, 4], [4, 4]);
+    state = play(state, [1, 0], [2, 0]);
+    state = play(state, [4, 4], [3, 4]);
+    state = play(state, [1, 3], [3, 3]);
+    state = play(state, [3, 4], [2, 3]);
+
+    expect(state.board[2][3]?.type).toBe("pawn");
+    expect(state.board[2][3]?.color).toBe("white");
+    expect(state.board[3][3]).toBeNull();
+  });
+});
+
+describe("rule-book draws", () => {
+  test("ends on insufficient material", () => {
+    const board = createEmptyBoard();
+    board[0][0] = { type: "king", color: "black", hasMoved: true };
+    board[7][7] = { type: "king", color: "white", hasMoved: true };
+    board[4][4] = { type: "bishop", color: "white", hasMoved: true };
+
+    expect(sitting(board, "white").result).toBe("insufficient-material");
+  });
+
+  test("ends after fifty moves without a pawn move or capture", () => {
+    const board = createEmptyBoard();
+    board[0][0] = { type: "king", color: "black", hasMoved: true };
+    board[7][7] = { type: "king", color: "white", hasMoved: true };
+    board[7][0] = { type: "rook", color: "white", hasMoved: true };
+
+    const state = sitting(board, "white", 99);
+    const next = play(state, [7, 0], [6, 0]);
+    expect(next.result).toBe("fifty-move");
+    expect(next.isDraw).toBe(true);
   });
 });

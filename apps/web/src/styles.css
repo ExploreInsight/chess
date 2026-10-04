@@ -52,6 +52,7 @@ body {
   align-items: center;
   justify-content: center;
   position: relative;
+  overflow: hidden;
   border: 0;
   padding: 0;
   cursor: pointer;
@@ -82,11 +83,10 @@ body {
 }
 
 .piece {
-  font-size: clamp(28px, 6vw, 48px);
+  font-size: calc(min(560px, 100vw - 48px) / 12);
   line-height: 1;
   user-select: none;
-  position: relative;
-  z-index: 1;
+  pointer-events: none;
 }
 
 .status {
@@ -94,10 +94,22 @@ body {
   color: var(--text-primary);
 }
 
-.reset {
+.actions,
+.promotion {
+  display: flex;
+  gap: 8px;
+}
+
+.reset,
+.promotion button {
   border: 0;
   background: var(--bg-surface);
   color: var(--text-primary);
   padding: 10px 16px;
   cursor: pointer;
+}
+
+.reset:disabled {
+  opacity: 0.45;
+  cursor: default;
 }

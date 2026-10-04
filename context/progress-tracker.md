@@ -7,11 +7,11 @@
 - [x] Package scaffolds
 - [x] Agent and architecture documentation
 - [x] Architecture review approval
-- [ ] Chess implementation
+- [x] Chess implementation
 
 ## Current Goal
 
-Wait for architecture review. Do not implement the chessboard or game rules until explicitly approved.
+Local chess rules are implemented. The 3D board is a separate branch and is not on main.
 
 ## Completed
 
@@ -36,10 +36,10 @@ Wait for architecture review. Do not implement the chessboard or game rules unti
 ## Completed features
 
 - [x] Chessboard rendering and starting position
-- [x] Piece selection, legal moves, captures, and queen promotion
+- [x] Piece selection, legal moves, captures, castling, en passant, and promotion choice
 - [x] Turn handling
 - [x] Check and checkmate
-- [x] Stalemate draw
+- [x] Stalemate, threefold, fifty-move, insufficient material, agreement, and resignation
 - [x] New game reset
 
 ## Next Up

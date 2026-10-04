@@ -2,7 +2,7 @@
 
 Local two-player chess, built as a Bun + Turborepo + TypeScript monorepo. Web first. Mobile later.
 
-Local two-player chess is playable on web. v0 has no castling, en passant, or promotion picker. Pawns promote to a queen.
+Local two-player chess is playable on web. Rules include castling, en passant, promotion choice, check, checkmate, stalemate, threefold, the fifty-move rule, and insufficient material.
 
 ## Stack
 

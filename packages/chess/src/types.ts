@@ -17,9 +17,21 @@ export interface Move {
   from: Position;
   to: Position;
   promotion?: PieceType;
+  castle?: "kingside" | "queenside";
+  enPassant?: boolean;
 }
 
 export type Board = (Piece | null)[][];
+
+export type GameResult =
+  | "checkmate"
+  | "stalemate"
+  | "threefold"
+  | "fifty-move"
+  | "insufficient-material"
+  | "agreement"
+  | "resignation"
+  | null;
 
 export interface GameState {
   board: Board;
@@ -28,5 +40,8 @@ export interface GameState {
   isCheckmate: boolean;
   isDraw: boolean;
   winner: PlayerColor | null;
+  result: GameResult;
   moveHistory: Move[];
+  halfmoveClock: number;
+  positionHistory: string[];
 }
