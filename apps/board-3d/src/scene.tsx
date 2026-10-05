@@ -3,8 +3,10 @@ import type { Board, Position } from "@chess-game/chess";
 
 // ** import lib
 import { OrbitControls } from "@react-three/drei";
-
 import { PieceMesh } from "./pieces";
+
+// ** import constants
+import { TILE_HEIGHT, TILE_SIZE } from "./board-metrics";
 
 export interface SceneProps {
   board: Board;
@@ -51,7 +53,7 @@ export function ChessScene({ board, selected, targets, checkedKing, onSquareClic
               }}
             >
               <mesh receiveShadow>
-                <boxGeometry args={[0.96, 0.08, 0.96]} />
+                <boxGeometry args={[TILE_SIZE, TILE_HEIGHT, TILE_SIZE]} />
                 <meshStandardMaterial color={color} roughness={0.62} />
               </mesh>
               {target ? (

@@ -21,7 +21,7 @@ export function ProceduralPiece({ piece }: { piece: Piece }) {
   }, []);
 
   return (
-    <group ref={group} position={[0, 0.16, 0]}>
+    <group ref={group}>
       {piece.type === "pawn" ? (
         <>
           <mesh position={[0, 0.12, 0]}>
