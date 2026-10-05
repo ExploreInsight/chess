@@ -23,7 +23,7 @@ The board sits on a dark wooden table. The player can orbit the camera, select a
 - New app: `apps/board-3d`
 - React, Vite, Three.js via React Three Fiber
 - Imports rules only from `@chess-game/chess`
-- This app lives on `feat/3d-board`, not on `main`
+- Piece visuals are specified separately in `context/specs/board-3d-pieces.md`
 
 ## Edge Cases
 
