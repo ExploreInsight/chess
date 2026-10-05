@@ -11,7 +11,7 @@
 
 ## Current Goal
 
-Local chess rules are on main. The 3D board is complete on `feat/3d-board` and is not pushed to main.
+Local chess rules and the 3D board are both on main. The 3D board now renders classic Staunton GLB piece models.
 
 ## Completed
 
@@ -45,6 +45,7 @@ Local chess rules are on main. The 3D board is complete on `feat/3d-board` and i
 - [x] shadcn/ui Button with project tokens
 - [x] React Aria promotion dialog
 - [x] Keyboard and screen reader support on the board
+- [x] 3D board piece models replaced with classic Staunton GLBs (CC0, 12 files, 3.85 MB, normalised and seated on their squares)
 
 ## Next Up
 
@@ -60,6 +61,8 @@ After setup is complete, implement chess features in order:
 8. Checkmate detection — done
 9. Draw (stalemate) detection — done
 10. Game reset — done
+
+Still open for the 3D pieces: a headless browser screenshot of the starting position has not been captured yet, so scale, knight facing, and wood tones are unverified visually. Build, type-check, and the 12 domain tests pass.
 
 ## Open Questions
 
