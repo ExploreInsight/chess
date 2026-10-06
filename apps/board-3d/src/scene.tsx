@@ -13,14 +13,16 @@ export interface SceneProps {
   selected: Position | null;
   targets: Position[];
   checkedKing: Position | null;
+  flipped: boolean;
   onSquareClick: (position: Position) => void;
 }
 
-function squarePosition(row: number, col: number): [number, number, number] {
-  return [col - 3.5, 0.08, row - 3.5];
+function squarePosition(row: number, col: number, flipped: boolean): [number, number, number] {
+  const z = flipped ? 3.5 - row : row - 3.5;
+  return [col - 3.5, 0.08, z];
 }
 
-export function ChessScene({ board, selected, targets, checkedKing, onSquareClick }: SceneProps) {
+export function ChessScene({ board, selected, targets, checkedKing, flipped, onSquareClick }: SceneProps) {
   return (
     <>
       <color attach="background" args={["#312e2b"]} />
@@ -42,7 +44,7 @@ export function ChessScene({ board, selected, targets, checkedKing, onSquareClic
           const capture = target && piece !== null;
           const check = checkedKing?.row === rowIndex && checkedKing.col === colIndex;
           const color = check ? "#e74c3c" : selectedSquare || capture ? "#829769" : dark ? "#b58863" : "#f0d9b5";
-          const [x, y, z] = squarePosition(rowIndex, colIndex);
+          const [x, y, z] = squarePosition(rowIndex, colIndex, flipped);
 
           return (
             <group

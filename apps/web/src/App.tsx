@@ -51,6 +51,7 @@ export default function App() {
   const [game, setGame] = useState(createInitialGameState);
   const [selected, setSelected] = useState<Position | null>(null);
   const [promotions, setPromotions] = useState<Move[]>([]);
+  const [flipped, setFlipped] = useState(false);
   const legal = selected ? getLegalMoves(game, selected) : [];
   const targets = legal
     .filter(
@@ -121,6 +122,7 @@ export default function App() {
         selected={selected}
         targets={targets}
         checkedKing={checkedKing(game)}
+        flipped={flipped}
         onSquareClick={onSquareClick}
       />
 
@@ -130,6 +132,7 @@ export default function App() {
 
       <div className="flex gap-2">
         <Button onClick={resetGame}>New Game</Button>
+        <Button onClick={() => setFlipped((f) => !f)}>{flipped ? "Unflip" : "Flip"}</Button>
         <Button disabled={finished || game.history.length === 0} onClick={onUndo}>
           Undo
         </Button>

@@ -50,6 +50,7 @@ export default function App() {
   const [game, setGame] = useState(createInitialGameState);
   const [selected, setSelected] = useState<Position | null>(null);
   const [promotions, setPromotions] = useState<Move[]>([]);
+  const [flipped, setFlipped] = useState(false);
   const legal = selected ? getLegalMoves(game, selected) : [];
   const finished = game.isCheckmate || game.isDraw || game.winner !== null;
 
@@ -102,6 +103,7 @@ export default function App() {
           selected={selected}
           targets={legal.map((move) => move.to)}
           checkedKing={checkedKing(game)}
+          flipped={flipped}
           onSquareClick={onSquareClick}
         />
       </Canvas>
@@ -153,6 +155,9 @@ export default function App() {
           </button>
           <button type="button" disabled={finished || game.history.length === 0} onClick={onUndo}>
             Undo
+          </button>
+          <button type="button" onClick={() => setFlipped((f) => !f)}>
+            {flipped ? "Unflip" : "Flip"}
           </button>
           <button type="button" disabled={finished} onClick={() => setGame(resign(game))}>
             Resign
