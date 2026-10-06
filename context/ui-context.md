@@ -46,6 +46,8 @@ Use Unicode chess symbols for initial implementation:
 | Knight | ♘     | ♞     |
 | Pawn   | ♙     | ♟     |
 
+White pieces are drawn ivory with a dark outline so they stay visible on light squares. Black pieces are drawn near-black. Both use the `--color-piece-white` / `--color-piece-black` tokens, which the 3D board shares.
+
 ## Layout Patterns
 
 - Centered chessboard on page

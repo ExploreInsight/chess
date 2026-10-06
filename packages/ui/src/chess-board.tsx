@@ -105,7 +105,13 @@ export function ChessBoard({
                 className={`relative flex cursor-pointer items-center justify-center overflow-hidden border-0 p-0 focus-visible:outline-2 focus-visible:outline-offset-[-3px] focus-visible:outline-ink ${tone}`}
               >
                 {piece ? (
-                  <span className="pointer-events-none relative z-1 text-[calc(min(560px,100vw-48px)/12)] leading-none select-none">
+                  <span
+                    className={`pointer-events-none relative z-1 text-[calc(min(560px,100vw-48px)/12)] leading-none select-none ${
+                      piece.color === "white"
+                        ? "text-piece-white [-webkit-text-stroke:1px_var(--color-piece-black)]"
+                        : "text-piece-black"
+                    }`}
+                  >
                     {pieceSymbol(piece)}
                   </span>
                 ) : null}

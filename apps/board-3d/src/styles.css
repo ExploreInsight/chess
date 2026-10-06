@@ -3,6 +3,8 @@
 @theme {
   --color-board: #312e2b;
   --color-surface: #272522;
+  --color-piece-white: #f3efe6;
+  --color-piece-black: #1a1a1a;
   --color-ink: #ffffff;
   --font-sans: Inter, system-ui, sans-serif;
 }
