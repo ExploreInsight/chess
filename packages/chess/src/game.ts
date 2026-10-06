@@ -28,6 +28,7 @@ function openState(board: GameState["board"], currentPlayer: GameState["currentP
     moveHistory: [],
     halfmoveClock: 0,
     positionHistory: [],
+    history: [],
   };
 }
 
@@ -144,7 +145,13 @@ export function applyMove(state: GameState, move: Move): GameState {
     result: null,
   };
   draft.positionHistory = [...state.positionHistory, positionKey(draft)];
-  return evaluatePosition(draft);
+  return evaluatePosition({ ...draft, history: [...state.history, state] });
+}
+
+export function undoMove(state: GameState): GameState | null {
+  if (isGameOver(state)) return null;
+  if (state.history.length === 0) return null;
+  return state.history[state.history.length - 1] ?? null;
 }
 
 export function resign(state: GameState): GameState {

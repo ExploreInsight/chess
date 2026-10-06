@@ -18,4 +18,5 @@ export {
   evaluatePosition,
   getLegalMoves,
   resign,
+  undoMove,
 } from "./game";

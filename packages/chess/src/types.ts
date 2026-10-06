@@ -44,4 +44,5 @@ export interface GameState {
   moveHistory: Move[];
   halfmoveClock: number;
   positionHistory: string[];
+  history: GameState[];
 }

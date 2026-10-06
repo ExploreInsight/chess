@@ -11,6 +11,7 @@ import {
   createInitialGameState,
   getLegalMoves,
   resign,
+  undoMove,
 } from "@chess-game/chess";
 
 import { ChessScene } from "./scene";
@@ -55,6 +56,15 @@ export default function App() {
     setGame(applyMove(game, move));
     setSelected(null);
     setPromotions([]);
+  }
+
+  function onUndo() {
+    const next = undoMove(game);
+    if (next) {
+      setGame(next);
+      setSelected(null);
+      setPromotions([]);
+    }
   }
 
   function onSquareClick(position: Position) {
@@ -117,6 +127,9 @@ export default function App() {
             }}
           >
             New Game
+          </button>
+          <button type="button" disabled={finished || game.history.length === 0} onClick={onUndo}>
+            Undo
           </button>
           <button type="button" disabled={finished} onClick={() => setGame(resign(game))}>
             Resign

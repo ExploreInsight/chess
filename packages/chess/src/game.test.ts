@@ -2,7 +2,7 @@ import { describe, expect, test } from "bun:test";
 
 import { createEmptyBoard } from "./board";
 import { positionKey } from "./draws";
-import { applyMove, createInitialGameState, evaluatePosition, getLegalMoves } from "./game";
+import { applyMove, createInitialGameState, evaluatePosition, getLegalMoves, resign, undoMove } from "./game";
 import type { Board, GameState, Move, PlayerColor } from "./types";
 
 function sitting(board: Board, currentPlayer: PlayerColor, halfmoveClock = 0): GameState {
@@ -17,6 +17,7 @@ function sitting(board: Board, currentPlayer: PlayerColor, halfmoveClock = 0): G
     moveHistory: [],
     halfmoveClock,
     positionHistory: [],
+    history: [],
   };
   draft.positionHistory = [positionKey(draft)];
   return evaluatePosition(draft);
@@ -177,5 +178,98 @@ describe("rule-book draws", () => {
     const next = play(state, [7, 0], [6, 0]);
     expect(next.result).toBe("fifty-move");
     expect(next.isDraw).toBe(true);
+  });
+});
+
+describe("undoMove", () => {
+  test("returns null when there is no move to undo", () => {
+    const state = createInitialGameState();
+    expect(undoMove(state)).toBeNull();
+  });
+
+  test("returns null when the game is over (resignation)", () => {
+    const state = createInitialGameState();
+    const resigned = resign(state);
+    expect(resigned.winner).toBe("black");
+    expect(undoMove(resigned)).toBeNull();
+  });
+
+  test("reverses a pawn move and restores the side to move", () => {
+    let state = createInitialGameState();
+    state = play(state, [6, 4], [4, 4]);
+    const undone = undoMove(state);
+    expect(undone).not.toBeNull();
+    if (!undone) return;
+    expect(undone.currentPlayer).toBe("white");
+    expect(undone.board[6][4]?.type).toBe("pawn");
+    expect(undone.board[4][4]).toBeNull();
+    expect(undone.moveHistory).toHaveLength(0);
+  });
+
+  test("reverses a capture", () => {
+    const board = createEmptyBoard();
+    board[0][0] = { type: "king", color: "black", hasMoved: true };
+    board[7][7] = { type: "king", color: "white", hasMoved: true };
+    board[3][3] = { type: "rook", color: "white", hasMoved: true };
+    board[3][4] = { type: "bishop", color: "black", hasMoved: true };
+    let state = sitting(board, "white");
+    state = play(state, [3, 3], [3, 4]);
+    expect(state.board[3][4]?.color).toBe("white");
+    const undone = undoMove(state);
+    if (!undone) throw new Error("expected undo");
+    expect(undone.board[3][3]?.color).toBe("white");
+    expect(undone.board[3][4]?.color).toBe("black");
+  });
+
+  test("reverses a kingside castle", () => {
+    const board = createEmptyBoard();
+    board[0][0] = { type: "king", color: "black", hasMoved: true };
+    board[7][7] = { type: "king", color: "white", hasMoved: true };
+    board[7][4] = { type: "king", color: "white", hasMoved: false };
+    board[7][7] = { type: "rook", color: "white", hasMoved: false };
+    let state = sitting(board, "white");
+    const castled = play(state, [7, 4], [7, 6]);
+    expect(castled.board[7][6]?.type).toBe("king");
+    expect(castled.board[7][5]?.type).toBe("rook");
+    const undone = undoMove(castled);
+    if (!undone) throw new Error("expected undo");
+    expect(undone.board[7][4]?.type).toBe("king");
+    expect(undone.board[7][7]?.type).toBe("rook");
+    expect(undone.board[7][5]).toBeNull();
+  });
+
+  test("reverses a promotion", () => {
+    const board = createEmptyBoard();
+    board[0][7] = { type: "king", color: "black", hasMoved: true };
+    board[7][7] = { type: "king", color: "white", hasMoved: true };
+    board[1][0] = { type: "pawn", color: "white", hasMoved: true };
+    let state = sitting(board, "white");
+    const promoted = applyMove(state, {
+      from: { row: 1, col: 0 },
+      to: { row: 0, col: 0 },
+      promotion: "queen",
+    });
+    expect(promoted.board[0][0]?.type).toBe("queen");
+    const undone = undoMove(promoted);
+    if (!undone) throw new Error("expected undo");
+    expect(undone.board[1][0]?.type).toBe("pawn");
+    expect(undone.board[0][0]).toBeNull();
+  });
+
+  test("reverses an en passant capture", () => {
+    const board = createEmptyBoard();
+    board[0][0] = { type: "king", color: "black", hasMoved: true };
+    board[7][7] = { type: "king", color: "white", hasMoved: true };
+    board[3][2] = { type: "pawn", color: "white", hasMoved: true };
+    board[1][3] = { type: "pawn", color: "black", hasMoved: false };
+    let state = sitting(board, "black");
+    state = play(state, [1, 3], [3, 3]);
+    const ep = applyMove(state, { from: { row: 3, col: 2 }, to: { row: 2, col: 3 }, enPassant: true });
+    expect(ep.board[2][3]?.color).toBe("white");
+    expect(ep.board[3][3]).toBeNull();
+    const undone = undoMove(ep);
+    if (!undone) throw new Error("expected undo");
+    expect(undone.board[3][2]?.color).toBe("white");
+    expect(undone.board[3][3]?.color).toBe("black");
   });
 });

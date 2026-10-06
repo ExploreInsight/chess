@@ -10,6 +10,7 @@ import {
   createInitialGameState,
   getLegalMoves,
   resign,
+  undoMove,
 } from "@chess-game/chess";
 import { ChessBoard, pieceSymbol } from "@chess-game/ui";
 
@@ -103,6 +104,15 @@ export default function App() {
     setPromotions([]);
   }
 
+  function onUndo() {
+    const next = undoMove(game);
+    if (next) {
+      setGame(next);
+      setSelected(null);
+      setPromotions([]);
+    }
+  }
+
   return (
     <main className="flex min-h-screen flex-col items-center justify-center gap-4 p-6">
       <ChessBoard
@@ -119,6 +129,9 @@ export default function App() {
 
       <div className="flex gap-2">
         <Button onClick={resetGame}>New Game</Button>
+        <Button disabled={finished || game.history.length === 0} onClick={onUndo}>
+          Undo
+        </Button>
         <Button disabled={finished} onClick={() => setGame(resign(game))}>
           Resign
         </Button>
