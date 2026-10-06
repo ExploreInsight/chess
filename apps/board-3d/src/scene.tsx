@@ -1,12 +1,15 @@
 // ** import types
-import type { Board, Position } from "@chess-game/chess";
+import type { Board, Piece, Position } from "@chess-game/chess";
 
 // ** import lib
 import { OrbitControls } from "@react-three/drei";
-import { PieceMesh } from "./pieces";
+import { useFrame } from "@react-three/fiber";
+import { useRef } from "react";
+import type { Group } from "three";
 
 // ** import constants
 import { TILE_HEIGHT, TILE_SIZE } from "./board-metrics";
+import { PieceMesh } from "./pieces";
 
 export interface SceneProps {
   board: Board;
@@ -14,15 +17,93 @@ export interface SceneProps {
   targets: Position[];
   checkedKing: Position | null;
   flipped: boolean;
+  lastMove: { from: Position; to: Position; captured: Piece | null } | null;
   onSquareClick: (position: Position) => void;
 }
+
+const ANIM_MS = 220;
 
 function squarePosition(row: number, col: number, flipped: boolean): [number, number, number] {
   const z = flipped ? 3.5 - row : row - 3.5;
   return [col - 3.5, 0.08, z];
 }
 
-export function ChessScene({ board, selected, targets, checkedKing, flipped, onSquareClick }: SceneProps) {
+function easeOut(t: number): number {
+  return 1 - (1 - t) * (1 - t);
+}
+
+interface MovingPieceProps {
+  from: Position;
+  to: Position;
+  piece: Piece;
+  flipped: boolean;
+}
+
+function MovingPiece({ from, to, piece, flipped }: MovingPieceProps) {
+  const startRef = useRef<number | null>(null);
+  const groupRef = useRef<Group>(null);
+
+  useFrame(() => {
+    const group = groupRef.current;
+    if (!group) return;
+    if (startRef.current === null) startRef.current = performance.now();
+    const t = Math.min(1, (performance.now() - startRef.current) / ANIM_MS);
+    const k = easeOut(t);
+    const [fx, , fz] = squarePosition(from.row, from.col, flipped);
+    const [tx, , tz] = squarePosition(to.row, to.col, flipped);
+    group.position.x = fx + (tx - fx) * k;
+    group.position.z = fz + (tz - fz) * k;
+    if (t >= 1) group.visible = false;
+  });
+
+  const [x, y, z] = squarePosition(from.row, from.col, flipped);
+  return (
+    <group ref={groupRef} position={[x, y, z]}>
+      <PieceMesh piece={piece} />
+    </group>
+  );
+}
+
+interface CapturedPieceProps {
+  piece: Piece;
+  position: Position;
+  flipped: boolean;
+}
+
+function CapturedPiece({ piece, position, flipped }: CapturedPieceProps) {
+  const startRef = useRef<number | null>(null);
+  const groupRef = useRef<Group>(null);
+
+  useFrame(() => {
+    const group = groupRef.current;
+    if (!group) return;
+    if (startRef.current === null) startRef.current = performance.now();
+    const t = Math.min(1, (performance.now() - startRef.current) / ANIM_MS);
+    const k = 1 - easeOut(t);
+    group.scale.set(k, k, k);
+  });
+
+  const [x, y, z] = squarePosition(position.row, position.col, flipped);
+  return (
+    <group ref={groupRef} position={[x, y, z]}>
+      <PieceMesh piece={piece} />
+    </group>
+  );
+}
+
+export function ChessScene({
+  board,
+  selected,
+  targets,
+  checkedKing,
+  flipped,
+  lastMove,
+  onSquareClick,
+}: SceneProps) {
+  const animating = !!lastMove;
+  const movingPiece = lastMove ? (board[lastMove.to.row]?.[lastMove.to.col] ?? null) : null;
+  const capturePiece = lastMove?.captured ?? null;
+
   return (
     <>
       <color attach="background" args={["#312e2b"]} />
@@ -45,6 +126,8 @@ export function ChessScene({ board, selected, targets, checkedKing, flipped, onS
           const check = checkedKing?.row === rowIndex && checkedKing.col === colIndex;
           const color = check ? "#e74c3c" : selectedSquare || capture ? "#829769" : dark ? "#b58863" : "#f0d9b5";
           const [x, y, z] = squarePosition(rowIndex, colIndex, flipped);
+          const skipPiece =
+            animating && lastMove && lastMove.to.row === rowIndex && lastMove.to.col === colIndex;
 
           return (
             <group
@@ -65,11 +148,17 @@ export function ChessScene({ board, selected, targets, checkedKing, flipped, onS
                   <meshStandardMaterial color="#696969" />
                 </mesh>
               ) : null}
-              {piece ? <PieceMesh piece={piece} /> : null}
+              {piece && !skipPiece ? <PieceMesh piece={piece} /> : null}
             </group>
           );
         }),
       )}
+      {animating && lastMove && movingPiece ? (
+        <MovingPiece from={lastMove.from} to={lastMove.to} piece={movingPiece} flipped={flipped} />
+      ) : null}
+      {animating && capturePiece && lastMove ? (
+        <CapturedPiece piece={capturePiece} position={lastMove.to} flipped={flipped} />
+      ) : null}
       <OrbitControls target={[0, 0, 0]} maxPolarAngle={Math.PI / 2.1} minDistance={6} maxDistance={16} />
     </>
   );

@@ -11,10 +11,8 @@ When `applyMove` runs, the piece that moved slides from its source square to its
 ## Functional Requirements
 
 - The piece being moved slides from source to destination in approximately 200 ms (ease-out).
-- A captured piece shrinks to 0 over the same window.
-- Castling: king and rook animate together (king travels two squares, rook travels two/three squares).
-- En passant: the capturing pawn animates its slide; the captured pawn shrinks to 0.
-- Promotion: the pawn animates its slide; at the end of the slide it is replaced by the promoted piece (no morph).
+- A captured piece shrinks to 0 over the same window and is removed at the end.
+- Castling, en passant, and promotion animations are out of scope for this round. They currently still teleport; the engine state is unaffected.
 - During animation the destination square does not accept a new click; clicks are buffered or ignored until the animation finishes.
 - The move remains applied to the engine state immediately; only the visual representation is animated.
 
@@ -35,10 +33,9 @@ When `applyMove` runs, the piece that moved slides from its source square to its
 ## Acceptance Criteria
 
 1. `bun run typecheck` and `bun run build` pass.
-2. Playing a move in the 3D app shows the moving piece slide, not teleport.
-3. Captures show the captured piece shrinking.
-4. Castling shows both pieces moving together.
-5. The 12 domain tests in `packages/chess` still pass and no engine file changed.
+2. Playing a non-castling, non-promotion move in the 3D app shows the moving piece slide, not teleport.
+3. Playing a capture shows the captured piece shrinking before it disappears.
+4. The 27 domain tests in `packages/chess` still pass and no engine file changed.
 
 ## Dependencies
 

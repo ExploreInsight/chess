@@ -1,9 +1,9 @@
 // ** import types
-import type { GameState, Move, PieceType, Position } from "@chess-game/chess";
+import type { Board, GameState, Move, Piece, PieceType, Position } from "@chess-game/chess";
 
 // ** import lib
 import { Canvas } from "@react-three/fiber";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   agreeDraw,
   applyMove,
@@ -53,8 +53,17 @@ export default function App() {
   const [flipped, setFlipped] = useState(false);
   const legal = selected ? getLegalMoves(game, selected) : [];
   const finished = game.isCheckmate || game.isDraw || game.winner !== null;
+  const [lastMove, setLastMove] = useState<{ from: Position; to: Position; captured: Piece | null } | null>(null);
+
+  useEffect(() => {
+    if (!lastMove) return;
+    const timer = setTimeout(() => setLastMove(null), 260);
+    return () => clearTimeout(timer);
+  }, [lastMove]);
 
   function finishMove(move: Move) {
+    const captured = game.board[move.to.row]?.[move.to.col] ?? null;
+    setLastMove({ from: move.from, to: move.to, captured });
     setGame(applyMove(game, move));
     setSelected(null);
     setPromotions([]);
@@ -104,6 +113,7 @@ export default function App() {
           targets={legal.map((move) => move.to)}
           checkedKing={checkedKing(game)}
           flipped={flipped}
+          lastMove={lastMove}
           onSquareClick={onSquareClick}
         />
       </Canvas>
