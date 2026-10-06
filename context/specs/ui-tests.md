@@ -22,11 +22,11 @@ No user-visible change. Tests run via `bun test` in `packages/ui` alongside the 
 
 ## Technical Requirements
 
-- `packages/ui` gains `vitest`, `@testing-library/react`, and `happy-dom` as devDependencies. No new runtime dependency.
+- `packages/ui` gains `vitest`, `@testing-library/react`, `@testing-library/jest-dom`, and `happy-dom` as devDependencies. No new runtime dependency.
 - A `vitest.config.ts` in `packages/ui` declares the test environment and the `tsconfig` test inclusion (the package's existing `tsconfig.json` may need `"types": ["vitest/globals"]` or the `vite/client` types referenced; follow the smallest viable change).
 - The existing `tsconfig.json` for the package is updated only if vitest types require it; no domain code is reshuffled.
 - `packages/chess` is not modified. The web app and 3D app are not modified.
-- The repo's `turbo.json` does not need a new task; `bun test packages/ui` is the entry point (mirrors `bun test packages/chess`).
+- The repo's `turbo.json` does not need a new task; `bun run --filter @chess-game/ui test` is the entry point (it runs `vitest run` in the package).
 
 ## Edge Cases
 
@@ -35,7 +35,7 @@ No user-visible change. Tests run via `bun test` in `packages/ui` alongside the 
 
 ## Acceptance Criteria
 
-1. `bun test packages/ui` runs the new tests and they pass.
+1. `bun run --filter @chess-game/ui test` runs the new tests and they pass.
 2. `bun test packages/chess` still passes 12 tests.
 3. `bun run typecheck` and `bun run build` pass.
 4. No production file is wrapped in test-only code paths.
