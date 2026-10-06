@@ -10,15 +10,21 @@
   "scripts": {
     "build": "tsc --build",
     "type-check": "tsc --noEmit",
+    "test": "vitest run",
     "lint": "eslint src/"
   },
   "dependencies": {
     "@chess-game/chess": "workspace:*"
   },
   "devDependencies": {
+    "@testing-library/jest-dom": "^7.0.1",
+    "@testing-library/react": "^16",
+    "@testing-library/user-event": "^14",
     "@types/react": "^18.3.0",
     "@types/react-dom": "^18.3.0",
-    "typescript": "^5.4.0"
+    "happy-dom": "^15",
+    "typescript": "^5.4.0",
+    "vitest": "^2"
   },
   "peerDependencies": {
     "react": "^18.0.0",

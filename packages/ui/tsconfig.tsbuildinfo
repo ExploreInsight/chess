@@ -1,1 +1,1 @@
-{"root":["./src/chess-board.tsx","./src/index.tsx","./src/piece-symbol.ts"],"version":"5.9.3"}
+{"root":["./src/chess-board.test.tsx","./src/chess-board.tsx","./src/index.tsx","./src/piece-symbol.ts","./src/vitest.d.ts"],"version":"5.9.3"}

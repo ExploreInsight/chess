@@ -69,11 +69,12 @@ export function ChessBoard({
             const isDark = (displayRowIndex + displayColIndex) % 2 === 1;
             const isSelected = matches(selected, engineRow, engineCol);
             const isTarget = targets.some((target) => matches(target, engineRow, engineCol));
+            const isCapture = isTarget && piece !== null;
             const isCheck = matches(checkedKing, engineRow, engineCol);
 
             const tone = isCheck
               ? "bg-square-check"
-              : isSelected
+              : isSelected || isCapture
                 ? "bg-square-selected"
                 : isDark
                   ? "bg-square-dark"
