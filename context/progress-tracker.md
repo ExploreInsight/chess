@@ -47,6 +47,11 @@ Local chess rules and the 3D board are both on main. The 3D board now renders cl
 - [x] Keyboard and screen reader support on the board
 - [x] 3D board piece models replaced with classic Staunton GLBs (CC0, 12 files, 3.85 MB, normalised and seated on their squares)
 - [x] 3D board capture targets tinted green on the tile, matching the check highlight mechanism
+- [x] Undo last move (engine snapshots + Undo buttons in both apps)
+- [x] Algebraic notation (SAN) in the engine + move-list panels in both apps
+- [x] Board flip (visual 180° rotation) in both apps
+- [x] 3D board piece slide and capture-fade animations
+- [x] packages/ui ChessBoard component tests (vitest + Testing Library)
 
 ## Next Up
 
@@ -63,7 +68,7 @@ After setup is complete, implement chess features in order:
 9. Draw (stalemate) detection — done
 10. Game reset — done
 
-Still open for the 3D pieces: a headless browser screenshot of the starting position has not been captured yet, so scale, knight facing, and wood tones are unverified visually. Build, type-check, and the 12 domain tests pass.
+Still open for the 3D pieces: a headless browser screenshot of the starting position has not been captured yet, so scale, knight facing, and wood tones are unverified visually. Build, type-check, the 27 domain tests, and 7 UI tests pass.
 
 ## Open Questions
 
