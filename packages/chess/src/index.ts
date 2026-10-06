@@ -20,3 +20,4 @@ export {
   resign,
   undoMove,
 } from "./game";
+export { toAlgebraic } from "./notation";

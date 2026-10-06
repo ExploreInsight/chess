@@ -11,6 +11,7 @@ import {
   createInitialGameState,
   getLegalMoves,
   resign,
+  toAlgebraic,
   undoMove,
 } from "@chess-game/chess";
 
@@ -104,6 +105,28 @@ export default function App() {
           onSquareClick={onSquareClick}
         />
       </Canvas>
+      {game.moveHistory.length > 0 ? (
+        <ol
+          aria-label="Move list"
+          className="fixed bottom-6 right-6 m-0 flex max-w-[40vw] flex-wrap justify-end gap-x-3 gap-y-1 p-2 text-sm"
+        >
+          {Array.from({ length: Math.ceil(game.moveHistory.length / 2) }, (_, pair) => {
+            const whiteIndex = pair * 2;
+            const blackIndex = whiteIndex + 1;
+            const whiteBefore = game.history[whiteIndex];
+            const blackBefore = game.history[blackIndex];
+            const white = game.moveHistory[whiteIndex]!;
+            const black = game.moveHistory[blackIndex];
+            return (
+              <li key={pair} className="flex gap-1">
+                <span>{pair + 1}.</span>
+                <span>{whiteBefore ? toAlgebraic(white, whiteBefore) : ""}</span>
+                {black && blackBefore ? <span>{toAlgebraic(black, blackBefore)}</span> : null}
+              </li>
+            );
+          })}
+        </ol>
+      ) : null}
       <div className="fixed bottom-6 left-6 flex flex-col gap-2.5">
         <p role="status" aria-live="polite" className="m-0">
           {statusText(game)}

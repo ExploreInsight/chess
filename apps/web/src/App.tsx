@@ -10,6 +10,7 @@ import {
   createInitialGameState,
   getLegalMoves,
   resign,
+  toAlgebraic,
   undoMove,
 } from "@chess-game/chess";
 import { ChessBoard, pieceSymbol } from "@chess-game/ui";
@@ -139,6 +140,35 @@ export default function App() {
           Agree Draw
         </Button>
       </div>
+
+      {game.moveHistory.length > 0 ? (
+        <ol
+          aria-label="Move list"
+          className="m-0 flex max-w-[min(560px,calc(100vw-48px))] flex-wrap gap-x-3 gap-y-1 p-0 text-sm"
+        >
+          {Array.from({ length: Math.ceil(game.moveHistory.length / 2) }, (_, pair) => {
+            const whiteIndex = pair * 2;
+            const blackIndex = whiteIndex + 1;
+            const whiteBefore = game.history[whiteIndex];
+            const blackBefore = game.history[blackIndex];
+            const white = game.moveHistory[whiteIndex]!;
+            const black = game.moveHistory[blackIndex];
+            return (
+              <li key={pair} className="flex gap-1">
+                <span className="text-ink-muted">{pair + 1}.</span>
+                <span className={pair === Math.floor((game.moveHistory.length - 1) / 2) ? "text-ink" : ""}>
+                  {whiteBefore ? toAlgebraic(white, whiteBefore) : ""}
+                </span>
+                {black && blackBefore ? (
+                  <span className={pair === Math.floor((game.moveHistory.length - 1) / 2) ? "text-ink" : ""}>
+                    {toAlgebraic(black, blackBefore)}
+                  </span>
+                ) : null}
+              </li>
+            );
+          })}
+        </ol>
+      ) : null}
 
       <PromotionDialog
         isOpen={promotions.length > 0}
