@@ -46,6 +46,7 @@ Local chess rules and the 3D board are both on main. The 3D board now renders cl
 - [x] React Aria promotion dialog
 - [x] Keyboard and screen reader support on the board
 - [x] 3D board piece models replaced with classic Staunton GLBs (CC0, 12 files, 3.85 MB, normalised and seated on their squares)
+- [x] 3D board capture targets tinted green on the tile, matching the check highlight mechanism
 
 ## Next Up
 
