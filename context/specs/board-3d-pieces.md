@@ -18,6 +18,7 @@ White pieces read as pale polished boxwood/ivory, black pieces as dark walnut/eb
 - If a model fails to load, the existing procedural piece renders instead; the board stays playable.
 - While models are loading, the board, tiles, highlights, and controls render normally.
 - Selection, legal-move targets, check highlight, click-to-move, promotion, resign, agree draw, new game, and orbit camera behave exactly as before.
+- A legal-move destination that holds an enemy piece is tinted green on the tile itself, using the same green as the selected square, so captures are visible around the piece base. Empty destinations keep the gray move dot.
 - No chess rule is read, computed, or duplicated in this app.
 
 ## Technical Requirements

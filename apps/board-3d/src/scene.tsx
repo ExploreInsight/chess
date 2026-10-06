@@ -39,8 +39,9 @@ export function ChessScene({ board, selected, targets, checkedKing, onSquareClic
           const dark = (rowIndex + colIndex) % 2 === 1;
           const selectedSquare = selected?.row === rowIndex && selected.col === colIndex;
           const target = targets.some((item) => item.row === rowIndex && item.col === colIndex);
+          const capture = target && piece !== null;
           const check = checkedKing?.row === rowIndex && checkedKing.col === colIndex;
-          const color = check ? "#e74c3c" : selectedSquare ? "#829769" : dark ? "#b58863" : "#f0d9b5";
+          const color = check ? "#e74c3c" : selectedSquare || capture ? "#829769" : dark ? "#b58863" : "#f0d9b5";
           const [x, y, z] = squarePosition(rowIndex, colIndex);
 
           return (
@@ -56,7 +57,7 @@ export function ChessScene({ board, selected, targets, checkedKing, onSquareClic
                 <boxGeometry args={[TILE_SIZE, TILE_HEIGHT, TILE_SIZE]} />
                 <meshStandardMaterial color={color} roughness={0.62} />
               </mesh>
-              {target ? (
+              {target && !piece ? (
                 <mesh position={[0, 0.06, 0]}>
                   <sphereGeometry args={[0.08, 16, 12]} />
                   <meshStandardMaterial color="#696969" />
